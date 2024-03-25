@@ -4,6 +4,7 @@ import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,10 @@ public class Tag extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String image;
+
+    @Builder
+    public Tag(String name, String image) {
+        this.name = name;
+        this.image = image;
+    }
 }
