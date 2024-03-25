@@ -20,4 +20,7 @@ public class Genre extends BaseTimeEntity {
 
     @Column(nullable = false, unique = true, length = 50)
     private String name;
+
+    @Column(nullable = false)
+    private String image;
 }
