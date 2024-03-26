@@ -1,5 +1,8 @@
 package com.example.dreamvalutbackend.domain.tag.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.*;
@@ -24,6 +27,9 @@ public class Tag extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String image;
+
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TrackTag> trackTags = new ArrayList<>();
 
     @Builder
     public Tag(String name, String image) {
