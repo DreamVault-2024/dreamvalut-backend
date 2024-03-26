@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.tag.domain;
 
+import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "track_tags")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TrackTag {
+public class TrackTag extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

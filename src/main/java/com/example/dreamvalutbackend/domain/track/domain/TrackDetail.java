@@ -1,5 +1,7 @@
 package com.example.dreamvalutbackend.domain.track.domain;
 
+import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "track_details")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TrackDetail {
+public class TrackDetail extends BaseTimeEntity {
 
     @Id
     private Long id;
