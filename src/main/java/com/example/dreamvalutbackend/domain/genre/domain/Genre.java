@@ -1,6 +1,10 @@
 package com.example.dreamvalutbackend.domain.genre.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
+import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,6 +28,9 @@ public class Genre extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String image;
+
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Track> tracks = new ArrayList<>();
 
     @Builder
     public Genre(String name, String image) {
