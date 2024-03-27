@@ -24,17 +24,11 @@ public class Genre extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String name;
+    private String genreName;
 
     @Column(nullable = false)
-    private String image;
+    private String genreImage;
 
-    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Track> tracks = new ArrayList<>();
-
-    @Builder
-    public Genre(String name, String image) {
-        this.name = name;
-        this.image = image;
-    }
+    // @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<Track> tracks = new ArrayList<>();
 }
