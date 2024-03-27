@@ -23,17 +23,11 @@ public class Tag extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String name;
+    private String tagName;
 
     @Column(nullable = false)
-    private String image;
+    private String tagImage;
 
-    @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TrackTag> trackTags = new ArrayList<>();
-
-    @Builder
-    public Tag(String name, String image) {
-        this.name = name;
-        this.image = image;
-    }
+    // @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<TrackTag> trackTags = new ArrayList<>();
 }
