@@ -1,15 +1,9 @@
 package com.example.dreamvalutbackend.domain.user.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
-import com.example.dreamvalutbackend.domain.track.domain.Like;
-import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,7 +19,7 @@ public class User extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String userName;
 
     @Column(nullable = true, length = 50)
     private String displayName;
@@ -33,27 +27,18 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String profileImage;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<StreamingHistory> streamingHistories = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<StreamingHistory> streamingHistories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Like> likes = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<Like> likes = new ArrayList<>();
 
-    @Builder
-    public User(String name, String displayName, String email, String profileImage) {
-        this.name = name;
-        this.displayName = displayName;
-        this.email = email;
-        this.profileImage = profileImage;
-    }
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<Playlist> playlists = new ArrayList<>();
 
-    public User update(String name, String profileImage) {
-        this.name = name;
-        this.profileImage = profileImage;
-
-        return this;
-    }
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<UserGenre> userGenres = new ArrayList<>();
 }

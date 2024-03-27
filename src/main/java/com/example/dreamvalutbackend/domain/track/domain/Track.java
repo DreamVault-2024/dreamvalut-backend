@@ -7,6 +7,7 @@ import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.tag.domain.TrackTag;
+import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -41,6 +42,10 @@ public class Track extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String thumbnailImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id")
