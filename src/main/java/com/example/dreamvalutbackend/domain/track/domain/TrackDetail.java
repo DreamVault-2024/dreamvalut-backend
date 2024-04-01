@@ -4,6 +4,7 @@ import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +21,13 @@ public class TrackDetail extends BaseTimeEntity {
     private String prompt;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId // Track 테이블의 id를 TrackDetail 기본 키와 매핑
-    @JoinColumn(name = "track_detail_id") // id 컬럼명을 track_detail_id로 변명
+    @MapsId
+    @JoinColumn(name = "track_detail_id")
     private Track track;
+
+    @Builder
+    public TrackDetail(String prompt, Track track) {
+        this.prompt = prompt;
+        this.track = track;
+    }
 }

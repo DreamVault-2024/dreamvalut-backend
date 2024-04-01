@@ -31,4 +31,10 @@ public class Genre extends BaseTimeEntity {
 
     // @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<Track> tracks = new ArrayList<>();
+
+    @Builder
+    public Genre(String genreName, String genreImage) {
+        this.genreName = genreName;
+        this.genreImage = genreImage;
+    }
 }
