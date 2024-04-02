@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/tracks")
+@RequestMapping("/tracks")
 public class TrackController {
 
     private final TrackService trackService;
