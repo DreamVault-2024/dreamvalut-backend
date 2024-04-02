@@ -9,7 +9,9 @@ import com.example.dreamvalutbackend.global.utils.multipart.ThumbnailImageMultip
 import com.example.dreamvalutbackend.global.utils.multipart.TrackImageMultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ImageUploader {
@@ -25,6 +27,7 @@ public class ImageUploader {
             String trackImageUrl = s3FileHandler.uploadFile(trackImageMultipartFile);
             return trackImageUrl;
         } catch (Exception e) {
+            log.error("Failed to upload track image: {}, use default image instead", e.getMessage());
             return defaultImageUrl;
         }
     }
@@ -36,6 +39,7 @@ public class ImageUploader {
             String thumbnailImageUrl = s3FileHandler.uploadFile(thumbnailImageMultipartFile);
             return thumbnailImageUrl;
         } catch (Exception e) {
+            log.error("Failed to upload thumbnail image: {}, use default image instead", e.getMessage());
             return defaultImageUrl;
         }
     }
