@@ -10,7 +10,7 @@ import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
 import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
-import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
@@ -37,7 +37,7 @@ public class TrackService {
 	private final AudioUploader audioUploader;
 
 	@Transactional
-	public TrackResponseDto uploadTrack(TrackUploadRequestDto trackUploadRequestDto,
+	public TrackUploadResponseDto uploadTrack(TrackUploadRequestDto trackUploadRequestDto,
 			MultipartFile trackImage, MultipartFile trackAudio) throws IOException {
 		// 이미지와 썸네일 이미지, 오디오 파일을 S3에 업로드
 		String trackImageUrl = imageUploader.uploadTrackImage(trackImage, trackUploadRequestDto.getTitle());
@@ -72,6 +72,6 @@ public class TrackService {
 				.build();
 		trackDetailRepository.save(trackDetail);
 
-		return new TrackResponseDto(savedTrack);
+		return new TrackUploadResponseDto(savedTrack);
 	}
 }
