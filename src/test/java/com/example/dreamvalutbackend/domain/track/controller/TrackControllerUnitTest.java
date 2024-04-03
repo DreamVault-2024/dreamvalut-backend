@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
-import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.service.TrackService;
 
 public class TrackControllerUnitTest {
@@ -65,7 +65,7 @@ public class TrackControllerUnitTest {
 				"audio".getBytes());
 
 		// TrackService.uploadTrack() 메소드가 리턴할 TrackResponseDto 객체 생성
-		TrackResponseDto trackResponseDto = TrackResponseDto.builder()
+		TrackUploadResponseDto trackResponseDto = TrackUploadResponseDto.builder()
 				.trackId(1L)
 				.title("TestTitle")
 				.hasLyrics(true)
@@ -79,13 +79,13 @@ public class TrackControllerUnitTest {
 				any(MultipartFile.class))).willReturn(trackResponseDto);
 
 		/* When & Then */
-		mockMvc.perform(multipart("/api/v1/tracks")
+		mockMvc.perform(multipart("/tracks")
 				.file(trackInfo)
 				.file(trackImage)
 				.file(trackAudio)
 				.contentType(MediaType.MULTIPART_FORM_DATA))
 				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost/api/v1/tracks/1"))
+				.andExpect(header().string("Location", "http://localhost/tracks/1"))
 				.andExpect(jsonPath("$.trackId").value(1L))
 				.andExpect(jsonPath("$.title").value("TestTitle"))
 				.andExpect(jsonPath("$.hasLyrics").value(true))

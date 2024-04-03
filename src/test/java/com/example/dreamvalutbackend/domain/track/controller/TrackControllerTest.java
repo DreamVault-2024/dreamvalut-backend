@@ -109,13 +109,13 @@ public class TrackControllerTest {
                 "audio".getBytes());
 
         /* When & Then */
-        mockMvc.perform(multipart("/api/v1/tracks")
+        mockMvc.perform(multipart("/tracks")
                 .file(trackInfo)
                 .file(trackImage)
                 .file(trackAudio)
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/api/v1/tracks/1"))
+                .andExpect(header().string("Location", "http://localhost/tracks/1"))
                 .andExpect(jsonPath("$.trackId").value(1L))
                 .andExpect(jsonPath("$.title").value("TestTitle"))
                 .andExpect(jsonPath("$.hasLyrics").value(true))
