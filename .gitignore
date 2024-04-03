@@ -159,3 +159,9 @@ bin/
 ### Properties ###
 application.yml
 application-*.yml
+
+## VS Code ##
+.vscode/
+
+## Database Initialization ##
+init.sql
