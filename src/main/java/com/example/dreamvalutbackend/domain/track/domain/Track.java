@@ -11,6 +11,7 @@ import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -66,4 +67,16 @@ public class Track extends BaseTimeEntity {
     // @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval =
     // true, fetch = FetchType.LAZY)
     // private List<PlaylistTrack> playlistTracks = new ArrayList<>();
+
+    @Builder
+    public Track(String title, Boolean hasLyrics, String trackUrl, String trackImage, String thumbnailImage, User user,
+            Genre genre) {
+        this.title = title;
+        this.hasLyrics = hasLyrics;
+        this.trackUrl = trackUrl;
+        this.trackImage = trackImage;
+        this.thumbnailImage = thumbnailImage;
+        this.user = user;
+        this.genre = genre;
+    }
 }

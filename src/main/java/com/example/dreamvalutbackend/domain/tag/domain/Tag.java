@@ -1,13 +1,9 @@
 package com.example.dreamvalutbackend.domain.tag.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,9 +21,13 @@ public class Tag extends BaseTimeEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String tagName;
 
-    @Column(nullable = false)
-    private String tagImage;
+    // @Column(nullable = false)
+    // private String tagImage;
 
     // @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<TrackTag> trackTags = new ArrayList<>();
+
+    public Tag(String tagName) {
+        this.tagName = tagName;
+    }
 }

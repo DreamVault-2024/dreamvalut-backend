@@ -52,9 +52,19 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    //Querydsl 추가
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+
+    // AWS S3
+    implementation 'software.amazon.awssdk:s3:2.25.18'
+
+    // Image Processing
+    implementation 'net.coobird:thumbnailator:0.4.20'
+	runtimeOnly 'com.twelvemonkeys.imageio:imageio-webp:3.10.1'
+
+    //Querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
