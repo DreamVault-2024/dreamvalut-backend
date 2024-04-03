@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.service.TrackService;
 import com.example.dreamvalutbackend.domain.track.validation.annotation.ValidTrackAudio;
@@ -19,6 +20,8 @@ import com.example.dreamvalutbackend.domain.track.validation.annotation.ValidTra
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,5 +48,10 @@ public class TrackController {
 
 		return ResponseEntity.created(location)
 				.body(trackUploadResponseDto);
+	}
+
+	@GetMapping("/{track_id}")
+	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId) {
+		return ResponseEntity.ok(trackService.getTrack(trackId));
 	}
 }

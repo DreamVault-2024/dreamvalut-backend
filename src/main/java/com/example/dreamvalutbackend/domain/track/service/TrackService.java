@@ -10,6 +10,7 @@ import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
 import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
@@ -73,5 +74,15 @@ public class TrackService {
 		trackDetailRepository.save(trackDetail);
 
 		return new TrackUploadResponseDto(savedTrack);
+	}
+
+	public TrackResponseDto getTrack(Long trackId) {
+		Track track = trackRepository.findById(trackId)
+				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
+
+		TrackDetail trackDetail = trackDetailRepository.findById(trackId)
+				.orElseThrow(() -> new EntityNotFoundException("TrackDetail not found with trackId: " + trackId));
+
+		return TrackResponseDto.toDto(track, trackDetail);
 	}
 }
