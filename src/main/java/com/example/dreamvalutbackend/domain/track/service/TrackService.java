@@ -77,12 +77,13 @@ public class TrackService {
 	}
 
 	public TrackResponseDto getTrack(Long trackId) {
+		// Track과 TrackDetail 가져오기
 		Track track = trackRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
-
 		TrackDetail trackDetail = trackDetailRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("TrackDetail not found with trackId: " + trackId));
 
+		// TrackResponseDto로 변환하여 반환
 		return TrackResponseDto.toDto(track, trackDetail);
 	}
 }
