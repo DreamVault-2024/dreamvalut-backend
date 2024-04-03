@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class TrackResponseDto {
+public class TrackUploadResponseDto {
 
     private Long trackId;
     private String title;
@@ -15,7 +15,7 @@ public class TrackResponseDto {
     private String trackImage;
     private String thumbnailImage;
 
-    public TrackResponseDto(Track track) {
+    public TrackUploadResponseDto(Track track) {
         this.trackId = track.getId();
         this.title = track.getTitle();
         this.hasLyrics = track.getHasLyrics();
@@ -26,7 +26,7 @@ public class TrackResponseDto {
 
     // For Testing
     @Builder
-    public TrackResponseDto(Long trackId, String title, Boolean hasLyrics, String trackUrl, String trackImage,
+    public TrackUploadResponseDto(Long trackId, String title, Boolean hasLyrics, String trackUrl, String trackImage,
             String thumbnailImage) {
         this.trackId = trackId;
         this.title = title;
