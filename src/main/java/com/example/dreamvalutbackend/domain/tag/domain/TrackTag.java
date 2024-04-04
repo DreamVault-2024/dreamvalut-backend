@@ -26,4 +26,9 @@ public class TrackTag extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     private Tag tag;
+
+    public TrackTag(Track track, Tag tag) {
+        this.track = track;
+        this.tag = tag;
+    }
 }
