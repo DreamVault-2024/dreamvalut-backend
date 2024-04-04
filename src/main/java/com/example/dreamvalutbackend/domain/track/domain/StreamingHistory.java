@@ -5,6 +5,7 @@ import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,10 @@ public class StreamingHistory extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "track_id")
     private Track track;
+
+    @Builder
+    public StreamingHistory(User user, Track track) {
+        this.user = user;
+        this.track = track;
+    }
 }
