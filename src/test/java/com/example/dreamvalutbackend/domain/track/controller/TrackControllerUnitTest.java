@@ -70,6 +70,7 @@ public class TrackControllerUnitTest {
 		TrackUploadResponseDto trackResponseDto = TrackUploadResponseDto.builder()
 				.trackId(1L)
 				.title("TestTitle")
+				.duration(120)
 				.hasLyrics(true)
 				.trackUrl("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav")
 				.trackImage("https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg")
@@ -90,6 +91,7 @@ public class TrackControllerUnitTest {
 				.andExpect(header().string("Location", "http://localhost/tracks/1"))
 				.andExpect(jsonPath("$.trackId").value(1L))
 				.andExpect(jsonPath("$.title").value("TestTitle"))
+				.andExpect(jsonPath("$.duration").value(120))
 				.andExpect(jsonPath("$.hasLyrics").value(true))
 				.andExpect(
 						jsonPath("$.trackUrl").value("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav"))
@@ -112,6 +114,7 @@ public class TrackControllerUnitTest {
 				.trackId(1L)
 				.title("TestTitle")
 				.uploaderName("TestUploader")
+				.duration(120)
 				.hasLyrics(true)
 				.trackUrl("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav")
 				.trackImage("https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg")
@@ -128,6 +131,7 @@ public class TrackControllerUnitTest {
 				.andExpect(jsonPath("$.trackId").value(1L))
 				.andExpect(jsonPath("$.title").value("TestTitle"))
 				.andExpect(jsonPath("$.uploaderName").value("TestUploader"))
+				.andExpect(jsonPath("$.duration").value(120))
 				.andExpect(jsonPath("$.hasLyrics").value(true))
 				.andExpect(
 						jsonPath("$.trackUrl").value("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav"))

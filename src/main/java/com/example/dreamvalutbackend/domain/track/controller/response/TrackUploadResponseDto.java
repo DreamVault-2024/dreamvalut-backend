@@ -10,6 +10,7 @@ public class TrackUploadResponseDto {
 
     private Long trackId;
     private String title;
+    private Integer duration;
     private Boolean hasLyrics;
     private String trackUrl;
     private String trackImage;
@@ -18,6 +19,7 @@ public class TrackUploadResponseDto {
     public TrackUploadResponseDto(Track track) {
         this.trackId = track.getId();
         this.title = track.getTitle();
+        this.duration = track.getDuration();
         this.hasLyrics = track.getHasLyrics();
         this.trackUrl = track.getTrackUrl();
         this.trackImage = track.getTrackImage();
@@ -26,10 +28,11 @@ public class TrackUploadResponseDto {
 
     // For Testing
     @Builder
-    public TrackUploadResponseDto(Long trackId, String title, Boolean hasLyrics, String trackUrl, String trackImage,
+    public TrackUploadResponseDto(Long trackId, String title, Integer duration, Boolean hasLyrics, String trackUrl, String trackImage,
             String thumbnailImage) {
         this.trackId = trackId;
         this.title = title;
+        this.duration = duration;
         this.hasLyrics = hasLyrics;
         this.trackUrl = trackUrl;
         this.trackImage = trackImage;
