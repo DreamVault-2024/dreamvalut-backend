@@ -20,7 +20,9 @@ import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
+import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
+import com.example.dreamvalutbackend.global.utils.audio.AudioDataParser;
 import com.example.dreamvalutbackend.global.utils.uploader.AudioUploader;
 import com.example.dreamvalutbackend.global.utils.uploader.ImageUploader;
 
@@ -49,6 +51,8 @@ public class TrackServiceTest {
     @Mock
     private AudioUploader audioUploader;
     @Mock
+    private AudioDataParser audioDataParser;
+    @Mock
     private TagService tagService;
 
     // TrackService 객체를 생성하면서 위에서 Mock으로 만든 객체들을 주입
@@ -57,6 +61,7 @@ public class TrackServiceTest {
 
     private static final Long TRACK_ID = 1L;
     private static final String TRACK_TITLE = "Test Title";
+    private static final Integer DURATION = 120;
     private static final Boolean HAS_LYRICS = true;
     private static final String TRACK_URL = "https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav";
     private static final String TRACK_IMAGE = "https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg";
@@ -69,8 +74,10 @@ public class TrackServiceTest {
     private static final Long USER_ID = 1L;
     private static final String USER_NAME = "Test User";
     private static final String DISPLAY_NAME = "Test User";
-    private static final String EMAIL = "testuser@example.com";
+    private static final String USER_EMAIL = "testuser@example.com";
     private static final String PROFILE_IMAGE = "https://example.com/profile/testuser.jpg";
+    private static final UserRole USER_ROLE = UserRole.USER;
+    private static final String USER_SOCIAL_ID = "testSocialId";
 
     @BeforeEach
     void setUp() {
@@ -120,6 +127,7 @@ public class TrackServiceTest {
         assertThat(trackUploadResponseDto).isNotNull();
         assertThat(trackUploadResponseDto.getTrackId()).isEqualTo(track.getId());
         assertThat(trackUploadResponseDto.getTitle()).isEqualTo(trackUploadRequestDto.getTitle());
+        assertThat(trackUploadResponseDto.getDuration()).isEqualTo(DURATION);
         assertThat(trackUploadResponseDto.getHasLyrics()).isEqualTo(trackUploadRequestDto.getHasLyrics());
         assertThat(trackUploadResponseDto.getTrackUrl()).isEqualTo(TRACK_URL);
         assertThat(trackUploadResponseDto.getTrackImage()).isEqualTo(TRACK_IMAGE);
@@ -152,6 +160,7 @@ public class TrackServiceTest {
         assertThat(trackResponseDto.getTrackId()).isEqualTo(track.getId());
         assertThat(trackResponseDto.getTitle()).isEqualTo(track.getTitle());
         assertThat(trackResponseDto.getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(trackResponseDto.getDuration()).isEqualTo(track.getDuration());
         assertThat(trackResponseDto.getHasLyrics()).isEqualTo(track.getHasLyrics());
         assertThat(trackResponseDto.getTrackUrl()).isEqualTo(track.getTrackUrl());
         assertThat(trackResponseDto.getTrackImage()).isEqualTo(track.getTrackImage());
@@ -165,11 +174,13 @@ public class TrackServiceTest {
             constructor.setAccessible(true);
             User user = constructor.newInstance();
 
-            setField(user, "id", USER_ID);
+            setField(user, "userId", USER_ID);
             setField(user, "userName", USER_NAME);
             setField(user, "displayName", DISPLAY_NAME);
-            setField(user, "email", EMAIL);
+            setField(user, "userEmail", USER_EMAIL);
             setField(user, "profileImage", PROFILE_IMAGE);
+            setField(user, "role", USER_ROLE);
+            setField(user, "socialId", USER_SOCIAL_ID);
 
             return user;
         } catch (Exception e) {
@@ -201,6 +212,7 @@ public class TrackServiceTest {
 
             setField(track, "id", TRACK_ID);
             setField(track, "title", TRACK_TITLE);
+            setField(track, "duration", DURATION);
             setField(track, "hasLyrics", HAS_LYRICS);
             setField(track, "trackUrl", TRACK_URL);
             setField(track, "trackImage", TRACK_IMAGE);
