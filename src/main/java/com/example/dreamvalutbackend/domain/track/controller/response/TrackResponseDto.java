@@ -12,6 +12,7 @@ public class TrackResponseDto {
     private Long trackId;
     private String title;
     private String uploaderName;
+    private Integer duration;
     private Boolean hasLyrics;
     private String trackUrl;
     private String trackImage;
@@ -19,11 +20,12 @@ public class TrackResponseDto {
     private String prompt;
 
     @Builder
-    public TrackResponseDto(Long trackId, String title, String uploaderName, Boolean hasLyrics, String trackUrl,
-            String trackImage, String thumbnailImage, String prompt) {
+    public TrackResponseDto(Long trackId, String title, String uploaderName, Integer duration, Boolean hasLyrics,
+            String trackUrl, String trackImage, String thumbnailImage, String prompt) {
         this.trackId = trackId;
         this.title = title;
         this.uploaderName = uploaderName;
+        this.duration = duration;
         this.hasLyrics = hasLyrics;
         this.trackUrl = trackUrl;
         this.trackImage = trackImage;
@@ -36,6 +38,7 @@ public class TrackResponseDto {
                 .trackId(track.getId())
                 .title(track.getTitle())
                 .uploaderName(track.getUser().getDisplayName())
+                .duration(track.getDuration())
                 .hasLyrics(track.getHasLyrics())
                 .trackUrl(track.getTrackUrl())
                 .trackImage(track.getTrackImage())

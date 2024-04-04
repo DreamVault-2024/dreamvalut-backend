@@ -18,6 +18,7 @@ import com.example.dreamvalutbackend.domain.track.repository.TrackDetailReposito
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
+import com.example.dreamvalutbackend.global.utils.audio.AudioDataParser;
 import com.example.dreamvalutbackend.global.utils.uploader.AudioUploader;
 import com.example.dreamvalutbackend.global.utils.uploader.ImageUploader;
 
@@ -45,6 +46,9 @@ public class TrackService {
 		String thumbnailImageUrl = imageUploader.uploadThumbnailImage(trackImage, trackUploadRequestDto.getTitle());
 		String trackAudioUrl = audioUploader.uploadTrackAudio(trackAudio, trackUploadRequestDto.getTitle());
 
+		// 오디오 파일로부터 음악 길이 추출
+		int duration = AudioDataParser.extractDurationInSeconds(trackAudio);
+
 		// User와 Genre 가져오기 - 유저 정보는 임시로 1L로 설정
 		User user = userRepository.findById(1L)
 				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
@@ -54,6 +58,7 @@ public class TrackService {
 		// Track 객체 생성 및 저장
 		Track track = Track.builder()
 				.title(trackUploadRequestDto.getTitle())
+				.duration(duration)
 				.hasLyrics(trackUploadRequestDto.getHasLyrics())
 				.trackUrl(trackAudioUrl)
 				.trackImage(trackImageUrl)

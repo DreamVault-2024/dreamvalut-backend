@@ -35,6 +35,7 @@ import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
+import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -71,8 +72,10 @@ public class TrackControllerTest {
         user = User.builder()
                 .userName("testUserName")
                 .displayName("testDisplayName")
-                .email("testEmail")
+                .userEmail("testEmail")
                 .profileImage("testProfileImage")
+                .role(UserRole.USER)
+                .socialId("testSocialId")
                 .build();
         userRepository.save(user);
 
@@ -130,10 +133,11 @@ public class TrackControllerTest {
         // trackRepository에서 저장된 Track 엔티티 검증
         Track savedTrack = trackRepository.findById(1L).orElseThrow();
         assertThat(savedTrack.getTitle()).isEqualTo(trackUploadRequestDto.getTitle());
+        assertThat(savedTrack.getDuration()).isGreaterThanOrEqualTo(0);
         assertThat(savedTrack.getHasLyrics()).isEqualTo(trackUploadRequestDto.getHasLyrics());
         assertThat(savedTrack.getTrackImage()).isNotNull();
         assertThat(savedTrack.getThumbnailImage()).isNotNull();
-        assertThat(savedTrack.getUser().getId()).isEqualTo(user.getId());
+        assertThat(savedTrack.getUser().getUserId()).isEqualTo(user.getUserId());
         assertThat(savedTrack.getGenre().getId()).isEqualTo(genre.getId());
 
         // trackDetailRepository에서 저장된 TrackDetail 엔티티 검증
@@ -163,6 +167,7 @@ public class TrackControllerTest {
         // Track 엔티티 생성
         Track track = Track.builder()
                 .title("Sample Track")
+                .duration(120)
                 .hasLyrics(true)
                 .trackUrl("testTrackUrl")
                 .trackImage("testTrackImage")
@@ -185,6 +190,7 @@ public class TrackControllerTest {
                 .andExpect(jsonPath("$.trackId").value(savedTrack.getId()))
                 .andExpect(jsonPath("$.title").value("Sample Track"))
                 .andExpect(jsonPath("$.uploaderName").value("testDisplayName"))
+                .andExpect(jsonPath("$.duration").value(120))
                 .andExpect(jsonPath("$.hasLyrics").value(true))
                 .andExpect(jsonPath("$.trackUrl").isString())
                 .andExpect(jsonPath("$.trackImage").value("testTrackImage"))

@@ -65,6 +65,9 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.20'
 	runtimeOnly 'com.twelvemonkeys.imageio:imageio-webp:3.10.1'
 
+    // Audio Processing
+    implementation 'net.jthink:jaudiotagger:3.0.1'
+
     //Querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"

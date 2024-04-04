@@ -29,8 +29,8 @@ public class Track extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
 
-    // @Column(nullable = false)
-    // private Integer duration;
+    @Column(nullable = false)
+    private Integer duration;
 
     @Column(nullable = false)
     private Boolean hasLyrics;
@@ -69,9 +69,10 @@ public class Track extends BaseTimeEntity {
     // private List<PlaylistTrack> playlistTracks = new ArrayList<>();
 
     @Builder
-    public Track(String title, Boolean hasLyrics, String trackUrl, String trackImage, String thumbnailImage, User user,
+    public Track(String title, Integer duration, Boolean hasLyrics, String trackUrl, String trackImage, String thumbnailImage, User user,
             Genre genre) {
         this.title = title;
+        this.duration = duration;
         this.hasLyrics = hasLyrics;
         this.trackUrl = trackUrl;
         this.trackImage = trackImage;
