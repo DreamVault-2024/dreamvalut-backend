@@ -12,8 +12,10 @@ import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
+import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
+import com.example.dreamvalutbackend.domain.track.repository.StreamingHistoryRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
@@ -33,6 +35,7 @@ public class TrackService {
 	private final UserRepository userRepository;
 	private final GenreRepository genreRepository;
 	private final TagService tagService;
+	private final StreamingHistoryRepository streamingHistoryRepository;
 
 	private final ImageUploader imageUploader;
 	private final AudioUploader audioUploader;
@@ -85,5 +88,21 @@ public class TrackService {
 
 		// TrackResponseDto로 변환하여 반환
 		return TrackResponseDto.toDto(track, trackDetail);
+	}
+
+	@Transactional
+	public void recordStreamEvent(Long trackId) {
+		// User와 Track 가져오기 - 유저 정보는 임시로 1L로 설정
+		User user = userRepository.findById(1L)
+				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+		Track track = trackRepository.findById(trackId)
+				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
+
+		// StreamingHistory 객체 생성 및 저장
+		StreamingHistory streamingHistory = StreamingHistory.builder()
+				.user(user)
+				.track(track)
+				.build();
+		streamingHistoryRepository.save(streamingHistory);
 	}
 }
