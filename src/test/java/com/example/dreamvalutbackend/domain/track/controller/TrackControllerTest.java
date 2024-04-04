@@ -1,10 +1,13 @@
 package com.example.dreamvalutbackend.domain.track.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.text.MatchesPattern.matchesPattern;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -20,15 +22,21 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
+import com.example.dreamvalutbackend.domain.tag.domain.TrackTag;
 import com.example.dreamvalutbackend.domain.tag.repository.TagRepository;
 import com.example.dreamvalutbackend.domain.tag.repository.TrackTagRepository;
+import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.domain.Track;
+import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -36,9 +44,11 @@ import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 @ActiveProfiles("test")
 public class TrackControllerTest {
 
-    // HTTP 요청 처리를 위한 MockMvc 객체
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private TrackRepository trackRepository;
@@ -53,14 +63,12 @@ public class TrackControllerTest {
     @Autowired
     private TrackTagRepository trackTagRepository;
 
-    @Value("${aws.s3.bucket}")
-    private String s3BucketName;
-    @Value("${aws.s3.default-image}")
-    private String defaultImageUrl;
+    private User user;
+    private Genre genre;
 
     @BeforeEach
-    public void setUp() {
-        User user = User.builder()
+    void setUp() {
+        user = User.builder()
                 .userName("testUserName")
                 .displayName("testDisplayName")
                 .email("testEmail")
@@ -68,7 +76,7 @@ public class TrackControllerTest {
                 .build();
         userRepository.save(user);
 
-        Genre genre = Genre.builder()
+        genre = Genre.builder()
                 .genreName("testGenreName")
                 .genreImage("testGenreImage")
                 .build();
@@ -76,59 +84,111 @@ public class TrackControllerTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         trackTagRepository.deleteAll();
         tagRepository.deleteAll();
         trackDetailRepository.deleteAll();
         trackRepository.deleteAll();
-        userRepository.deleteAll();
         genreRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("TrackController - 트랙 업로드 통합 테스트")
-    public void uploadTrackIntegrationTest() throws Exception {
+    @DisplayName("POST /tracks Integration Success")
+    @Transactional
+    void uploadTrackSuccess() throws Exception {
         /* Given */
 
-        // HTTP Post 요청 시, track_info 파트에 전달할 JSON 데이터
-        String trackInfoJson = "{\n" +
-                "  \"title\": \"TestTitle\",\n" +
-                "  \"prompt\": \"TestPrompt\",\n" +
-                "  \"hasLyrics\": true,\n" +
-                "  \"tags\": [\"TestTag1\", \"TestTag2\"],\n" +
-                "  \"genreId\": 1\n" +
-                "}";
+        // TrackUploadRequestDto 객체 생성
+        TrackUploadRequestDto trackUploadRequestDto = TrackUploadRequestDto.builder()
+                .title("Sample Track")
+                .prompt("Sample Prompt")
+                .hasLyrics(true)
+                .tags(new String[] { "tag1", "tag2" })
+                .genreId(1L)
+                .build();
 
-        // Mock MultipartFile 객체 생성 (track_info, track_image, track_audio)
-        MockMultipartFile trackInfo = new MockMultipartFile("track_info", "test.json", "application/json",
+        // TrackUploadRequestDto 객체를 JSON 문자열로 변환
+        String trackInfoJson = objectMapper.writeValueAsString(trackUploadRequestDto);
+
+        // MockMultipartFile 객체 생성 (track_info, track_image, track_audio)
+        MockMultipartFile trackInfo = new MockMultipartFile("track_info", "track_info.json", "application/json",
                 trackInfoJson.getBytes());
-        MockMultipartFile trackImage = new MockMultipartFile("track_image", "test.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
+        MockMultipartFile trackImage = new MockMultipartFile("track_image", "track_image.jpg", "image/jpeg",
                 "image".getBytes());
-        MockMultipartFile trackAudio = new MockMultipartFile("track_audio", "test.mp3", "audio/mpeg",
+        MockMultipartFile trackAudio = new MockMultipartFile("track_audio", "track_audio.mp3", "audio/mpeg",
                 "audio".getBytes());
 
         /* When & Then */
-        mockMvc.perform(multipart("/api/v1/tracks")
+        mockMvc.perform(multipart("/tracks")
                 .file(trackInfo)
                 .file(trackImage)
                 .file(trackAudio)
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/api/v1/tracks/1"))
-                .andExpect(jsonPath("$.trackId").value(1L))
-                .andExpect(jsonPath("$.title").value("TestTitle"))
-                .andExpect(jsonPath("$.hasLyrics").value(true))
-                .andExpect(jsonPath("$.trackUrl").value(
-                        matchesPattern(generateS3Pattern(s3BucketName, "mp3", "TestTitle"))))
-                .andExpect(jsonPath("$.trackImage").value(
-                        matchesPattern(generateS3Pattern(s3BucketName, "jpeg", "TestTitle"))))
-                .andExpect(jsonPath("$.thumbnailImage").value(defaultImageUrl));
+                .andExpect(status().isCreated());
+
+        // trackRepository에서 저장된 Track 엔티티 검증
+        Track savedTrack = trackRepository.findById(1L).orElseThrow();
+        assertThat(savedTrack.getTitle()).isEqualTo(trackUploadRequestDto.getTitle());
+        assertThat(savedTrack.getHasLyrics()).isEqualTo(trackUploadRequestDto.getHasLyrics());
+        assertThat(savedTrack.getTrackImage()).isNotNull();
+        assertThat(savedTrack.getThumbnailImage()).isNotNull();
+        assertThat(savedTrack.getUser().getId()).isEqualTo(user.getId());
+        assertThat(savedTrack.getGenre().getId()).isEqualTo(genre.getId());
+
+        // trackDetailRepository에서 저장된 TrackDetail 엔티티 검증
+        TrackDetail savedTrackDetail = trackDetailRepository.findById(1L).orElseThrow();
+        assertThat(savedTrackDetail.getPrompt()).isEqualTo(trackUploadRequestDto.getPrompt());
+
+        // trackTagRepository에서 저장된 TrackTag 엔티티들 검증
+        List<TrackTag> trackTagsForTag1 = trackTagRepository.findByTagName("tag1");
+        List<TrackTag> trackTagsForTag2 = trackTagRepository.findByTagName("tag2");
+
+        // Verify that the tags are associated with the correct Track
+        boolean isTag1AssociatedWithTrack = trackTagsForTag1.stream()
+                .anyMatch(trackTag -> trackTag.getTrack().getId().equals(savedTrack.getId()));
+        boolean isTag2AssociatedWithTrack = trackTagsForTag2.stream()
+                .anyMatch(trackTag -> trackTag.getTrack().getId().equals(savedTrack.getId()));
+
+        assertThat(isTag1AssociatedWithTrack).isTrue();
+        assertThat(isTag2AssociatedWithTrack).isTrue();
     }
 
-    // S3 URL 패턴 생성 메서드
-    private String generateS3Pattern(String s3BucketName, String fileType, String title) {
-        return String.format("https://%s\\.s3\\.ap-northeast-2\\.amazonaws\\.com/%s/[\\w-]+-%s\\.%s",
-                s3BucketName, fileType.equals("mp3") ? "audio" : "image", title, fileType);
+    @Test
+    @DisplayName("GET /tracks/{track_id} Integration Success")
+    @Transactional
+    void getTrackSuccess() throws Exception {
+        /* Given */
+
+        // Track 엔티티 생성
+        Track track = Track.builder()
+                .title("Sample Track")
+                .hasLyrics(true)
+                .trackUrl("testTrackUrl")
+                .trackImage("testTrackImage")
+                .thumbnailImage("testThumbnailImage")
+                .user(user)
+                .genre(genre)
+                .build();
+        Track savedTrack = trackRepository.save(track);
+
+        // TrackDetail 엔티티 생성
+        TrackDetail trackDetail = TrackDetail.builder()
+                .prompt("Sample Prompt")
+                .track(savedTrack)
+                .build();
+        trackDetailRepository.save(trackDetail);
+
+        /* When & Then */
+        mockMvc.perform(get("/tracks/{track_id}", savedTrack.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.trackId").value(savedTrack.getId()))
+                .andExpect(jsonPath("$.title").value("Sample Track"))
+                .andExpect(jsonPath("$.uploaderName").value("testDisplayName"))
+                .andExpect(jsonPath("$.hasLyrics").value(true))
+                .andExpect(jsonPath("$.trackUrl").isString())
+                .andExpect(jsonPath("$.trackImage").value("testTrackImage"))
+                .andExpect(jsonPath("$.thumbnailImage").value("testThumbnailImage"))
+                .andExpect(jsonPath("$.prompt").value("Sample Prompt"));
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.service.TrackService;
 
 public class TrackControllerUnitTest {
@@ -43,8 +45,8 @@ public class TrackControllerUnitTest {
 	}
 
 	@Test
-	@DisplayName("TrackController - 트랙 업로드 테스트")
-	public void uploadTrackTest() throws Exception {
+	@DisplayName("POST /tracks - Unit Success")
+	public void uploadTrackSuccess() throws Exception {
 		/* Given */
 
 		// HTTP Post 요청 시, track_info 파트에 전달할 JSON 데이터
@@ -65,7 +67,7 @@ public class TrackControllerUnitTest {
 				"audio".getBytes());
 
 		// TrackService.uploadTrack() 메소드가 리턴할 TrackResponseDto 객체 생성
-		TrackResponseDto trackResponseDto = TrackResponseDto.builder()
+		TrackUploadResponseDto trackResponseDto = TrackUploadResponseDto.builder()
 				.trackId(1L)
 				.title("TestTitle")
 				.hasLyrics(true)
@@ -79,13 +81,13 @@ public class TrackControllerUnitTest {
 				any(MultipartFile.class))).willReturn(trackResponseDto);
 
 		/* When & Then */
-		mockMvc.perform(multipart("/api/v1/tracks")
+		mockMvc.perform(multipart("/tracks")
 				.file(trackInfo)
 				.file(trackImage)
 				.file(trackAudio)
 				.contentType(MediaType.MULTIPART_FORM_DATA))
 				.andExpect(status().isCreated())
-				.andExpect(header().string("Location", "http://localhost/api/v1/tracks/1"))
+				.andExpect(header().string("Location", "http://localhost/tracks/1"))
 				.andExpect(jsonPath("$.trackId").value(1L))
 				.andExpect(jsonPath("$.title").value("TestTitle"))
 				.andExpect(jsonPath("$.hasLyrics").value(true))
@@ -97,4 +99,42 @@ public class TrackControllerUnitTest {
 						.value("https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg"));
 	}
 
+	@Test
+	@DisplayName("GET /tracks/{track_id} - Unit Success")
+	void getTrackSuccess() throws Exception {
+		/* Given */
+
+		// 요청할 Track ID:
+		Long trackId = 1L;
+
+		// TrackService.getTrack() 메소드가 리턴할 TrackResponseDto 객체 생성
+		TrackResponseDto trackResponseDto = TrackResponseDto.builder()
+				.trackId(1L)
+				.title("TestTitle")
+				.uploaderName("TestUploader")
+				.hasLyrics(true)
+				.trackUrl("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav")
+				.trackImage("https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg")
+				.thumbnailImage("https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg")
+				.prompt("TestPrompt")
+				.build();
+
+		// TrackService.getTrack() 메소드가 호출될 때 리턴할 TrackResponseDto 객체 설정
+		given(trackService.getTrack(any(Long.class))).willReturn(trackResponseDto);
+
+		/* When & Then */
+		mockMvc.perform(get("/tracks/{track_id}", trackId))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.trackId").value(1L))
+				.andExpect(jsonPath("$.title").value("TestTitle"))
+				.andExpect(jsonPath("$.uploaderName").value("TestUploader"))
+				.andExpect(jsonPath("$.hasLyrics").value(true))
+				.andExpect(
+						jsonPath("$.trackUrl").value("https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav"))
+				.andExpect(jsonPath("$.trackImage")
+						.value("https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg"))
+				.andExpect(jsonPath("$.thumbnailImage")
+						.value("https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg"))
+				.andExpect(jsonPath("$.prompt").value("TestPrompt"));
+	}
 }
