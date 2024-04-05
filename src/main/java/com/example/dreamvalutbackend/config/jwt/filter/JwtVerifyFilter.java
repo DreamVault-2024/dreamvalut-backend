@@ -36,8 +36,9 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
 	// 필터를 거치지 않을 URL 을 설정하고, true 를 return 하면 현재 필터를 건너뛰고 다음 필터로 이동
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		String requestURI = request.getRequestURI();
-		return PatternMatchUtils.simpleMatch(whitelist, requestURI);
+		return true;
+		// String requestURI = request.getRequestURI();
+		// return PatternMatchUtils.simpleMatch(whitelist, requestURI);
 	}
 
 	@Override

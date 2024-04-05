@@ -13,9 +13,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -140,5 +142,20 @@ public class TrackControllerUnitTest {
 				.andExpect(jsonPath("$.thumbnailImage")
 						.value("https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg"))
 				.andExpect(jsonPath("$.prompt").value("TestPrompt"));
+	}
+
+	@Test
+	@DisplayName("POST /tracks/{track_id}/stream_events - Unit Success")
+	void recordStreamEventSuccess() throws Exception {
+		/* Given */
+
+		// 요청할 Track ID:
+		Long trackId = 1L;
+
+		/* When & Then */
+		mockMvc.perform(post("/tracks/{track_id}/stream_events", trackId))
+				.andExpect(status().isOk());
+
+		verify(trackService).recordStreamEvent(trackId);
 	}
 }

@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,5 +54,11 @@ public class TrackController {
 	@GetMapping("/{track_id}")
 	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId) {
 		return ResponseEntity.ok(trackService.getTrack(trackId));
+	}
+
+	@PostMapping("/{track_id}/stream_events")
+	public ResponseEntity<Void> recordStreamEvent(@PathVariable("track_id") Long trackId) {
+		trackService.recordStreamEvent(trackId);
+		return ResponseEntity.ok().build();
 	}
 }
