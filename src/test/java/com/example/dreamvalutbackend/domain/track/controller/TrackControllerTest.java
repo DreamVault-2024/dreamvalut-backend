@@ -2,6 +2,7 @@ package com.example.dreamvalutbackend.domain.track.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,8 +31,10 @@ import com.example.dreamvalutbackend.domain.tag.domain.TrackTag;
 import com.example.dreamvalutbackend.domain.tag.repository.TagRepository;
 import com.example.dreamvalutbackend.domain.tag.repository.TrackTagRepository;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
+import com.example.dreamvalutbackend.domain.track.repository.StreamingHistoryRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
@@ -63,6 +66,8 @@ public class TrackControllerTest {
     private TagRepository tagRepository;
     @Autowired
     private TrackTagRepository trackTagRepository;
+    @Autowired
+    private StreamingHistoryRepository streamingHistoryRepository;
 
     private User user;
     private Genre genre;
@@ -123,6 +128,13 @@ public class TrackControllerTest {
                 "audio".getBytes());
 
         /* When & Then */
+
+        /*
+         * 해당 부분에서 아래와 같은 오류 발생 할 수 있음 - TrackService에서 User를 임시로 1L로만 가져옴
+         * 
+         * jakarta.servlet.ServletException: Request processing failed:
+         * jakarta.persistence.EntityNotFoundException: User not found with id: 1
+         */
         mockMvc.perform(multipart("/tracks")
                 .file(trackInfo)
                 .file(trackImage)
@@ -196,5 +208,42 @@ public class TrackControllerTest {
                 .andExpect(jsonPath("$.trackImage").value("testTrackImage"))
                 .andExpect(jsonPath("$.thumbnailImage").value("testThumbnailImage"))
                 .andExpect(jsonPath("$.prompt").value("Sample Prompt"));
+    }
+
+    @Test
+    @DisplayName("POST /tracks/{track_id}/stream_events Integration Success")
+    @Transactional
+    void recordStreamEventSuccess() throws Exception {
+        /* Given */
+
+        // Track 엔티티 생성
+        Track track = Track.builder()
+                .title("Sample Track")
+                .duration(120)
+                .hasLyrics(true)
+                .trackUrl("testTrackUrl")
+                .trackImage("testTrackImage")
+                .thumbnailImage("testThumbnailImage")
+                .user(user)
+                .genre(genre)
+                .build();
+        Track savedTrack = trackRepository.save(track);
+
+        // TrackDetail 엔티티 생성
+        TrackDetail trackDetail = TrackDetail.builder()
+                .prompt("Sample Prompt")
+                .track(savedTrack)
+                .build();
+        trackDetailRepository.save(trackDetail);
+
+        /* When & Then */
+        mockMvc.perform(post("/tracks/{track_id}/stream_events", savedTrack.getId()))
+                .andExpect(status().isOk());
+
+        // streamingHistoryRepository에서 저장된 StreamingHistory 엔티티 검증
+        List<StreamingHistory> streamingHistories = streamingHistoryRepository.findAll();
+        assertThat(streamingHistories).hasSize(1);
+        assertThat(streamingHistories.get(0).getUser().getUserId()).isEqualTo(user.getUserId());
+        assertThat(streamingHistories.get(0).getTrack().getId()).isEqualTo(savedTrack.getId());
     }
 }

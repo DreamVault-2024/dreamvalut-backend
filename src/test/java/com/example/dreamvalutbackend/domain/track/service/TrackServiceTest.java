@@ -15,8 +15,10 @@ import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
+import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
+import com.example.dreamvalutbackend.domain.track.repository.StreamingHistoryRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
@@ -28,6 +30,7 @@ import com.example.dreamvalutbackend.global.utils.uploader.ImageUploader;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -47,13 +50,17 @@ public class TrackServiceTest {
     @Mock
     private GenreRepository genreRepository;
     @Mock
+    private StreamingHistoryRepository streamingHistoryRepository;
+
+    @Mock
+    private TagService tagService;
+
+    @Mock
     private ImageUploader imageUploader;
     @Mock
     private AudioUploader audioUploader;
     @Mock
     private AudioDataParser audioDataParser;
-    @Mock
-    private TagService tagService;
 
     // TrackService 객체를 생성하면서 위에서 Mock으로 만든 객체들을 주입
     @InjectMocks
@@ -166,6 +173,30 @@ public class TrackServiceTest {
         assertThat(trackResponseDto.getTrackImage()).isEqualTo(track.getTrackImage());
         assertThat(trackResponseDto.getThumbnailImage()).isEqualTo(track.getThumbnailImage());
         assertThat(trackResponseDto.getPrompt()).isEqualTo(trackDetail.getPrompt());
+    }
+
+    @Test
+    @DisplayName("POST /tracks/{track_id}/stream_events - Unit Success")
+    void recordStreamEventSuccess() {
+        /* Given */
+
+        // 요청할 Track ID
+        Long trackId = TRACK_ID;
+
+        // Mock User, Track 객체 생성
+        User user = createMockUser();
+        Genre genre = createMockGenre();
+        Track track = createMockTrack(user, genre);
+
+        // Mock Repository의 findById() 메소드가 리턴할 Optional 객체 생성
+        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(user));
+        given(trackRepository.findById(any(Long.class))).willReturn(Optional.of(track));
+
+        /* When */
+        trackService.recordStreamEvent(trackId);
+
+        /* Then */
+        verify(streamingHistoryRepository).save(any(StreamingHistory.class));
     }
 
     private User createMockUser() {
