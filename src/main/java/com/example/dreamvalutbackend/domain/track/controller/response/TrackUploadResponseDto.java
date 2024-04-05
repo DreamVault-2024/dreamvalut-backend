@@ -16,17 +16,6 @@ public class TrackUploadResponseDto {
     private String trackImage;
     private String thumbnailImage;
 
-    public TrackUploadResponseDto(Track track) {
-        this.trackId = track.getId();
-        this.title = track.getTitle();
-        this.duration = track.getDuration();
-        this.hasLyrics = track.getHasLyrics();
-        this.trackUrl = track.getTrackUrl();
-        this.trackImage = track.getTrackImage();
-        this.thumbnailImage = track.getThumbnailImage();
-    }
-
-    // For Testing
     @Builder
     public TrackUploadResponseDto(Long trackId, String title, Integer duration, Boolean hasLyrics, String trackUrl, String trackImage,
             String thumbnailImage) {
@@ -37,5 +26,17 @@ public class TrackUploadResponseDto {
         this.trackUrl = trackUrl;
         this.trackImage = trackImage;
         this.thumbnailImage = thumbnailImage;
+    }
+
+    public static TrackUploadResponseDto toDto(Track track) {
+        return TrackUploadResponseDto.builder()
+                .trackId(track.getId())
+                .title(track.getTitle())
+                .duration(track.getDuration())
+                .hasLyrics(track.getHasLyrics())
+                .trackUrl(track.getTrackUrl())
+                .trackImage(track.getTrackImage())
+                .thumbnailImage(track.getThumbnailImage())
+                .build();
     }
 }

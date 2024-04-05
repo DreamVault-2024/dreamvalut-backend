@@ -81,7 +81,7 @@ public class TrackService {
 				.build();
 		trackDetailRepository.save(trackDetail);
 
-		return new TrackUploadResponseDto(savedTrack);
+		return TrackUploadResponseDto.toDto(savedTrack);
 	}
 
 	public TrackResponseDto getTrack(Long trackId) {
