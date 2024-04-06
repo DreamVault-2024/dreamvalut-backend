@@ -24,6 +24,6 @@ public class TrackAudioValidator implements ConstraintValidator<ValidTrackAudio,
         }
 
         // 오디오 파일의 확장자가 mp3, wav가 아닌 경우
-        return value.getContentType() != null && value.getContentType().matches("audio/(mpeg|wave)");
+        return value.getContentType() != null && value.getContentType().matches("audio/(mpeg|wave|wav)");
     }
 }

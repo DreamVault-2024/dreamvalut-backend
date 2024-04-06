@@ -71,7 +71,7 @@ public class TrackAudioMultipartFile implements MultipartFile {
     private String getExtension(String contentType) {
         if (contentType.equals("audio/mpeg")) {
             return ".mp3";
-        } else if (contentType.equals("audio/wave")) {
+        } else if (contentType.equals("audio/wave") || contentType.equals("audio/wav")) {
             return ".wav";
         } else {
             throw new IllegalArgumentException("Invalid content type");
