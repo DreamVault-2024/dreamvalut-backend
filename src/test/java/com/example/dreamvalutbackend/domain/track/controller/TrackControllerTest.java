@@ -131,6 +131,7 @@ public class TrackControllerTest {
 
         /*
          * 해당 부분에서 아래와 같은 오류 발생 할 수 있음 - TrackService에서 User를 임시로 1L로만 가져옴
+         * 단일 테스트에서는 문제가 없지만, 여러 테스트를 동시에 실행할 경우 User를 찾을 수 없다는 오류 발생
          * 
          * jakarta.servlet.ServletException: Request processing failed:
          * jakarta.persistence.EntityNotFoundException: User not found with id: 1
