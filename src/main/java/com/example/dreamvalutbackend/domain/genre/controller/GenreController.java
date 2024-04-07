@@ -3,6 +3,7 @@ package com.example.dreamvalutbackend.domain.genre.controller;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public ResponseEntity<List<GenreWithTracksOverviewResponseDto>> getGenresWithTracksOverview(
+    public ResponseEntity<Page<GenreWithTracksOverviewResponseDto>> getGenresWithTracksOverview(
             @PageableDefault(page = 0, size = 4, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(genreService.getGenresWithTracksOverview(pageable));
     }

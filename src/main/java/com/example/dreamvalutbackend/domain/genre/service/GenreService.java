@@ -31,26 +31,23 @@ public class GenreService {
     private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
 
-    public List<GenreWithTracksOverviewResponseDto> getGenresWithTracksOverview(Pageable pageable) {
+    public Page<GenreWithTracksOverviewResponseDto> getGenresWithTracksOverview(Pageable pageable) {
         // 장르들 가져오기
         Page<Genre> genres = genreRepository.findAll(pageable);
 
-        // 각 장르에 해당하는 트랙들 간단한 정보 가져오기
-        List<GenreWithTracksOverviewResponseDto> genreWithTracksResponseDtos = genres.stream().map(genre -> {
-            // 장르에 해당하는 트랙들 3개 가져오기
-            Page<Track> tracks = trackRepository.findAllByGenreId(genre.getId(),
-                    PageRequest.of(0, 3, Sort.by("id").descending()));
+        return genres.map(genre -> {
+            // 장르에 해당하는 트랙들 가져오기
+            List<Track> tracks = trackRepository.findAllByGenreId(genre.getId(),
+                    PageRequest.of(0, 3, Sort.by("id").descending())).getContent();
 
-            // 트랙들의 간단한 정보만 TrackOverviewResponseDto로 변환
-            List<TrackOverviewResponseDto> trackDtos = tracks.getContent().stream()
+            // 트랙들의 Overview 정보 가져오기
+            List<TrackOverviewResponseDto> trackDtos = tracks.stream()
                     .map(TrackOverviewResponseDto::toDto)
                     .collect(Collectors.toList());
-
-            // 장르와 트랙들의 간단한 정보를 GenreWithTracksOverviewResponseDto로 변환
+            
+            // 장르와 트랙들의 Overview 정보를 DTO로 변환
             return GenreWithTracksOverviewResponseDto.toDto(genre, trackDtos);
-        }).collect(Collectors.toList());
-
-        return genreWithTracksResponseDtos;
+        });
     }
 
     public List<GenreResponseDto> listAllGenres() {
