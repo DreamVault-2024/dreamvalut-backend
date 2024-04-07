@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
+import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
+import com.example.dreamvalutbackend.domain.genre.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.service.GenreService;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 
@@ -48,6 +48,99 @@ public class GenreControllerUnitTest {
         mockMvc = MockMvcBuilders.standaloneSetup(genreController)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
+    }
+
+    @Test
+    @DisplayName("GET /genres - Unit Success")
+    void getGenresWithTracksOverviewSuccess() throws Exception {
+        /* Given */
+
+        // 장르와 트랙들의 Overview 정보를 담은 GenreWithTracksOverviewResponseDto 객체 리스트 생성
+        Page<GenreWithTracksOverviewResponseDto> pageResponse = new PageImpl<>(List.of(
+                new GenreWithTracksOverviewResponseDto(1L, "Genre 1", "Genre 1 Image", List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(1L)
+                                .title("Track 1")
+                                .uploaderName("Artist 1")
+                                .thumbnailImage("url1")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(2L)
+                                .title("Track 2")
+                                .uploaderName("Artist 2")
+                                .thumbnailImage("url2")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(3L)
+                                .title("Track 3")
+                                .uploaderName("Artist 3")
+                                .thumbnailImage("url3")
+                                .build())),
+                new GenreWithTracksOverviewResponseDto(2L, "Genre 2", "Genre 2 Image", List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(4L)
+                                .title("Track 4")
+                                .uploaderName("Artist 4")
+                                .thumbnailImage("url4")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(5L)
+                                .title("Track 5")
+                                .uploaderName("Artist 5")
+                                .thumbnailImage("url5")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(6L)
+                                .title("Track 6")
+                                .uploaderName("Artist 6")
+                                .thumbnailImage("url6")
+                                .build()))),
+                PageRequest.of(0, 2), 2);
+
+        // 장르와 트랙들의 Overview 정보를 담은 GenreWithTracksOverviewResponseDto 객체 리스트 반환하도록 설정
+        given(genreService.getGenresWithTracksOverview(any(Pageable.class))).willReturn(pageResponse);
+
+        /* When & Then */
+        mockMvc.perform(get("/genres").param("page", "0").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].genreId").value(1))
+                .andExpect(jsonPath("$.content[0].genreName").value("Genre 1"))
+                .andExpect(jsonPath("$.content[0].genreImage").value("Genre 1 Image"))
+                .andExpect(jsonPath("$.content[0].tracks[0].trackId").value(1))
+                .andExpect(jsonPath("$.content[0].tracks[0].title").value("Track 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].uploaderName").value("Artist 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].thumbnailImage").value("url1"))
+                .andExpect(jsonPath("$.content[0].tracks[1].trackId").value(2))
+                .andExpect(jsonPath("$.content[0].tracks[1].title").value("Track 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].uploaderName").value("Artist 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].thumbnailImage").value("url2"))
+                .andExpect(jsonPath("$.content[0].tracks[2].trackId").value(3))
+                .andExpect(jsonPath("$.content[0].tracks[2].title").value("Track 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].uploaderName").value("Artist 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].thumbnailImage").value("url3"))
+                .andExpect(jsonPath("$.content[1].genreId").value(2))
+                .andExpect(jsonPath("$.content[1].genreName").value("Genre 2"))
+                .andExpect(jsonPath("$.content[1].genreImage").value("Genre 2 Image"))
+                .andExpect(jsonPath("$.content[1].tracks[0].trackId").value(4))
+                .andExpect(jsonPath("$.content[1].tracks[0].title").value("Track 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].uploaderName").value("Artist 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].thumbnailImage").value("url4"))
+                .andExpect(jsonPath("$.content[1].tracks[1].trackId").value(5))
+                .andExpect(jsonPath("$.content[1].tracks[1].title").value("Track 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].uploaderName").value("Artist 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].thumbnailImage").value("url5"))
+                .andExpect(jsonPath("$.content[1].tracks[2].trackId").value(6))
+                .andExpect(jsonPath("$.content[1].tracks[2].title").value("Track 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].uploaderName").value("Artist 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].thumbnailImage").value("url6"))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(2))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true))
+                .andExpect(jsonPath("$.numberOfElements").value(2))
+                .andExpect(jsonPath("$.empty").value(false));
     }
 
     @Test
