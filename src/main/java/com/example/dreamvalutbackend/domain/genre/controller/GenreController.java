@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
+import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.genre.service.GenreService;
 
@@ -23,6 +24,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class GenreController {
 
     private final GenreService genreService;
+
+    @GetMapping
+    public ResponseEntity<List<GenreWithTracksOverviewResponseDto>> getGenresWithTracksOverview(
+            @PageableDefault(page = 0, size = 4, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(genreService.getGenresWithTracksOverview(pageable));
+    }
 
     @GetMapping("/list")
     public ResponseEntity<List<GenreResponseDto>> listAllGenres() {
