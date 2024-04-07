@@ -66,26 +66,6 @@ public class TrackServiceTest {
     @InjectMocks
     private TrackService trackService;
 
-    private static final Long TRACK_ID = 1L;
-    private static final String TRACK_TITLE = "Test Title";
-    private static final Integer DURATION = 120;
-    private static final Boolean HAS_LYRICS = true;
-    private static final String TRACK_URL = "https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav";
-    private static final String TRACK_IMAGE = "https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg";
-    private static final String THUMBNAIL_IMAGE = "https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg";
-    private static final String PROMPT = "Test Prompt";
-    private static final String[] TAGS = { "Test Tag1", "Test Tag2" };
-    private static final Long GENRE_ID = 1L;
-    private static final String GENRE_NAME = "Test Genre";
-    private static final String GENRE_IMAGE = "https://example.com/genre/test.jpg";
-    private static final Long USER_ID = 1L;
-    private static final String USER_NAME = "Test User";
-    private static final String DISPLAY_NAME = "Test User";
-    private static final String USER_EMAIL = "testuser@example.com";
-    private static final String PROFILE_IMAGE = "https://example.com/profile/testuser.jpg";
-    private static final UserRole USER_ROLE = UserRole.USER;
-    private static final String USER_SOCIAL_ID = "testSocialId";
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -98,11 +78,11 @@ public class TrackServiceTest {
 
         // 테스트용 TrackUploadRequestDto 객체 생성
         TrackUploadRequestDto trackUploadRequestDto = TrackUploadRequestDto.builder()
-                .title(TRACK_TITLE)
-                .prompt(PROMPT)
-                .hasLyrics(HAS_LYRICS)
-                .tags(TAGS)
-                .genreId(GENRE_ID)
+                .title("title")
+                .prompt("prompt")
+                .hasLyrics(true)
+                .tags(new String[] { "tag1", "tag2" })
+                .genreId(1L)
                 .build();
 
         // Mock MultipartFile 객체 생성 (track_image, track_audio)
@@ -112,17 +92,17 @@ public class TrackServiceTest {
                 "audio".getBytes());
 
         // Mock User, Genre, Track 객체 생성
-        User user = createMockUser();
-        Genre genre = createMockGenre();
-        Track track = createMockTrack(user, genre);
-        TrackDetail trackDetail = createMockTrackDetail(track);
+        User user = createMockUser(1L, "userName", "displayName", "userEmail", "profileImage", UserRole.USER, "socialId");
+        Genre genre = createMockGenre(1L, "genreName", "genreImage");
+        Track track = createMockTrack(1L, "title", 100, true, "trackUrl", "trackImage", "thumbnailImage", user, genre);
+        TrackDetail trackDetail = createMockTrackDetail(1L, "prompt", track);
 
         given(userRepository.findById(any(Long.class))).willReturn(Optional.of(user));
         given(genreRepository.findById(any(Long.class))).willReturn(Optional.of(genre));
-        given(imageUploader.uploadTrackImage(any(MockMultipartFile.class), any(String.class))).willReturn(TRACK_IMAGE);
+        given(imageUploader.uploadTrackImage(any(MockMultipartFile.class), any(String.class))).willReturn("trackImage");
         given(imageUploader.uploadThumbnailImage(any(MockMultipartFile.class), any(String.class)))
-                .willReturn(THUMBNAIL_IMAGE);
-        given(audioUploader.uploadTrackAudio(any(MockMultipartFile.class), any(String.class))).willReturn(TRACK_URL);
+                .willReturn("thumbnailImage");
+        given(audioUploader.uploadTrackAudio(any(MockMultipartFile.class), any(String.class))).willReturn("trackUrl");
         given(trackRepository.save(any(Track.class))).willReturn(track);
         given(trackDetailRepository.save(any(TrackDetail.class))).willReturn(trackDetail);
 
@@ -134,11 +114,11 @@ public class TrackServiceTest {
         assertThat(trackUploadResponseDto).isNotNull();
         assertThat(trackUploadResponseDto.getTrackId()).isEqualTo(track.getId());
         assertThat(trackUploadResponseDto.getTitle()).isEqualTo(trackUploadRequestDto.getTitle());
-        assertThat(trackUploadResponseDto.getDuration()).isEqualTo(DURATION);
+        assertThat(trackUploadResponseDto.getDuration()).isEqualTo(track.getDuration());
         assertThat(trackUploadResponseDto.getHasLyrics()).isEqualTo(trackUploadRequestDto.getHasLyrics());
-        assertThat(trackUploadResponseDto.getTrackUrl()).isEqualTo(TRACK_URL);
-        assertThat(trackUploadResponseDto.getTrackImage()).isEqualTo(TRACK_IMAGE);
-        assertThat(trackUploadResponseDto.getThumbnailImage()).isEqualTo(THUMBNAIL_IMAGE);
+        assertThat(trackUploadResponseDto.getTrackUrl()).isEqualTo(track.getTrackUrl());
+        assertThat(trackUploadResponseDto.getTrackImage()).isEqualTo(track.getTrackImage());
+        assertThat(trackUploadResponseDto.getThumbnailImage()).isEqualTo(track.getThumbnailImage());
     }
 
     @Test
@@ -147,13 +127,13 @@ public class TrackServiceTest {
         /* Given */
 
         // 요청할 Track ID
-        Long trackId = TRACK_ID;
+        Long trackId = 1L;
 
         // Mock User, Genre, Track 객체 생성
-        User user = createMockUser();
-        Genre genre = createMockGenre();
-        Track track = createMockTrack(user, genre);
-        TrackDetail trackDetail = createMockTrackDetail(track);
+        User user = createMockUser(1L, "userName", "displayName", "userEmail", "profileImage", UserRole.USER, "socialId");
+        Genre genre = createMockGenre(1L, "genreName", "genreImage");
+        Track track = createMockTrack(1L, "title", 100, true, "trackUrl", "trackImage", "thumbnailImage", user, genre);
+        TrackDetail trackDetail = createMockTrackDetail(1L, "prompt", track);
 
         // Mock Repository의 findById() 메소드가 리턴할 Optional 객체 생성
         given(trackRepository.findById(any(Long.class))).willReturn(Optional.of(track));
@@ -181,12 +161,12 @@ public class TrackServiceTest {
         /* Given */
 
         // 요청할 Track ID
-        Long trackId = TRACK_ID;
+        Long trackId = 1L;
 
         // Mock User, Track 객체 생성
-        User user = createMockUser();
-        Genre genre = createMockGenre();
-        Track track = createMockTrack(user, genre);
+        User user = createMockUser(1L, "userName", "displayName", "userEmail", "profileImage", UserRole.USER, "socialId");
+        Genre genre = createMockGenre(1L, "genreName", "genreImage");
+        Track track = createMockTrack(1L, "title", 100, true, "trackUrl", "trackImage", "thumbnailImage", user, genre);
 
         // Mock Repository의 findById() 메소드가 리턴할 Optional 객체 생성
         given(userRepository.findById(any(Long.class))).willReturn(Optional.of(user));
@@ -199,19 +179,20 @@ public class TrackServiceTest {
         verify(streamingHistoryRepository).save(any(StreamingHistory.class));
     }
 
-    private User createMockUser() {
+    private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
+            UserRole role, String socialId) {
         try {
             Constructor<User> constructor = User.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             User user = constructor.newInstance();
 
-            setField(user, "userId", USER_ID);
-            setField(user, "userName", USER_NAME);
-            setField(user, "displayName", DISPLAY_NAME);
-            setField(user, "userEmail", USER_EMAIL);
-            setField(user, "profileImage", PROFILE_IMAGE);
-            setField(user, "role", USER_ROLE);
-            setField(user, "socialId", USER_SOCIAL_ID);
+            setField(user, "userId", userId);
+            setField(user, "userName", userName);
+            setField(user, "displayName", displayName);
+            setField(user, "userEmail", userEmail);
+            setField(user, "profileImage", profileImage);
+            setField(user, "role", role);
+            setField(user, "socialId", socialId);
 
             return user;
         } catch (Exception e) {
@@ -219,15 +200,15 @@ public class TrackServiceTest {
         }
     }
 
-    private Genre createMockGenre() {
+    private Genre createMockGenre(Long id, String genreName, String genreImage) {
         try {
             Constructor<Genre> constructor = Genre.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             Genre genre = constructor.newInstance();
 
-            setField(genre, "id", GENRE_ID);
-            setField(genre, "genreName", GENRE_NAME);
-            setField(genre, "genreImage", GENRE_IMAGE);
+            setField(genre, "id", id);
+            setField(genre, "genreName", genreName);
+            setField(genre, "genreImage", genreImage);
 
             return genre;
         } catch (Exception e) {
@@ -235,19 +216,20 @@ public class TrackServiceTest {
         }
     }
 
-    private Track createMockTrack(User user, Genre genre) {
+    private Track createMockTrack(Long id, String title, int duration, boolean hasLyrics,
+            String trackUrl, String trackImage, String thumbnailImage, User user, Genre genre) {
         try {
             Constructor<Track> constructor = Track.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             Track track = constructor.newInstance();
 
-            setField(track, "id", TRACK_ID);
-            setField(track, "title", TRACK_TITLE);
-            setField(track, "duration", DURATION);
-            setField(track, "hasLyrics", HAS_LYRICS);
-            setField(track, "trackUrl", TRACK_URL);
-            setField(track, "trackImage", TRACK_IMAGE);
-            setField(track, "thumbnailImage", THUMBNAIL_IMAGE);
+            setField(track, "id", id);
+            setField(track, "title", title);
+            setField(track, "duration", duration);
+            setField(track, "hasLyrics", hasLyrics);
+            setField(track, "trackUrl", trackUrl);
+            setField(track, "trackImage", trackImage);
+            setField(track, "thumbnailImage", thumbnailImage);
             setField(track, "user", user);
             setField(track, "genre", genre);
 
@@ -257,14 +239,14 @@ public class TrackServiceTest {
         }
     }
 
-    private TrackDetail createMockTrackDetail(Track track) {
+    private TrackDetail createMockTrackDetail(Long id, String prompt, Track track) {
         try {
             Constructor<TrackDetail> constructor = TrackDetail.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             TrackDetail trackDetail = constructor.newInstance();
 
-            setField(trackDetail, "id", TRACK_ID);
-            setField(trackDetail, "prompt", PROMPT);
+            setField(trackDetail, "id", id);
+            setField(trackDetail, "prompt", prompt);
             setField(trackDetail, "track", track);
 
             return trackDetail;
