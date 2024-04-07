@@ -26,7 +26,7 @@ public class TagController {
     // TODO: 추후에 Track 갯수가 많은 순으로 정렬하는 기능 추가
     @GetMapping("/list")
     public ResponseEntity<Page<TagResponseDto>> listAllTags(
-            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(tagService.listAllTags(pageable));
     }
 
