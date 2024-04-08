@@ -21,13 +21,14 @@ public class Tag extends BaseTimeEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String tagName;
 
-    // @Column(nullable = false)
-    // private String tagImage;
+    @Column(nullable = false)
+    private String tagImage;
 
     // @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<TrackTag> trackTags = new ArrayList<>();
 
-    public Tag(String tagName) {
+    public Tag(String tagName, String tagImage) {
         this.tagName = tagName;
+        this.tagImage = tagImage;
     }
 }
