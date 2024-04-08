@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.playlist.domain;
 
+import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "playlist_tracks")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlaylistTrack {
+public class PlaylistTrack extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
