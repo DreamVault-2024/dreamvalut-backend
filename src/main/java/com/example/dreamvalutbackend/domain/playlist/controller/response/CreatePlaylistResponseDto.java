@@ -8,13 +8,13 @@ import lombok.Getter;
 @Getter
 public class CreatePlaylistResponseDto {
 
-    private long playlistId;
+    private Long playlistId;
     private String playlistName;
     private Boolean isPublic;
     private Boolean isCurated;
 
     @Builder
-    public CreatePlaylistResponseDto(long playlistId, String playlistName, Boolean isPublic, Boolean isCurated) {
+    public CreatePlaylistResponseDto(Long playlistId, String playlistName, Boolean isPublic, Boolean isCurated) {
         this.playlistId = playlistId;
         this.playlistName = playlistName;
         this.isPublic = isPublic;
