@@ -27,4 +27,10 @@ public class PlaylistTrack extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "track_id")
     private Track track;
+
+    @Builder
+    public PlaylistTrack(Playlist playlist, Track track) {
+        this.playlist = playlist;
+        this.track = track;
+    }
 }
