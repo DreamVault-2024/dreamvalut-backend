@@ -26,4 +26,10 @@ public class MyPlaylist {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playlist_id")
     private Playlist playlist;
+
+    @Builder
+    public MyPlaylist(User user, Playlist playlist) {
+        this.user = user;
+        this.playlist = playlist;
+    }
 }

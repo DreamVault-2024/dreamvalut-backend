@@ -36,6 +36,15 @@ public class Playlist extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval =
+    // true, fetch = FetchType.LAZY)
     // private List<PlaylistTrack> playlistTracks = new ArrayList<>();
+
+    @Builder
+    public Playlist(String playlistName, Boolean isPublic, Boolean isCurated, User user) {
+        this.playlistName = playlistName;
+        this.isPublic = isPublic;
+        this.isCurated = isCurated;
+        this.user = user;
+    }
 }
