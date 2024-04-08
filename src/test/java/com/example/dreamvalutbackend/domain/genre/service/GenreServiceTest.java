@@ -1,5 +1,7 @@
 package com.example.dreamvalutbackend.domain.genre.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,8 +20,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
+import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
@@ -42,29 +47,73 @@ public class GenreServiceTest {
     @InjectMocks
     private GenreService genreService;
 
-    private static final Long TRACK_ID = 1L;
-    private static final String TRACK_TITLE = "Test Title";
-    private static final Integer DURATION = 120;
-    private static final Boolean HAS_LYRICS = true;
-    private static final String TRACK_URL = "https://example-bucket.s3.amazonaws.com/audio/testTrackUrl.wav";
-    private static final String TRACK_IMAGE = "https://example-bucket.s3.amazonaws.com/image/testTrackImage.jpeg";
-    private static final String THUMBNAIL_IMAGE = "https://example-bucket.s3.amazonaws.com/image/testThumbnailImage.jpeg";
-    private static final String PROMPT = "Test Prompt";
-    private static final String[] TAGS = { "Test Tag1", "Test Tag2" };
-    private static final Long GENRE_ID = 1L;
-    private static final String GENRE_NAME = "Test Genre";
-    private static final String GENRE_IMAGE = "https://example.com/genre/test.jpg";
-    private static final Long USER_ID = 1L;
-    private static final String USER_NAME = "Test User";
-    private static final String DISPLAY_NAME = "Test User";
-    private static final String USER_EMAIL = "testuser@example.com";
-    private static final String PROFILE_IMAGE = "https://example.com/profile/testuser.jpg";
-    private static final UserRole USER_ROLE = UserRole.USER;
-    private static final String USER_SOCIAL_ID = "testSocialId";
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    @DisplayName("GET /genres - Unit Success")
+    void getGenresWithTracksOverviewSuccess() {
+        /* Given */
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(0, 4, Sort.by("id").ascending());
+
+        // Mock 장르 객체 생성
+        Genre genre1 = createMockGenre(1L, "Genre 1", "genre1_image_url");
+        Genre genre2 = createMockGenre(2L, "Genre 2", "genre2_image_url");
+
+        // Mock 유저 객체 생성
+        User user = createMockUser(1L, "testUser", "testDisplay", "test@example.com", "profileImageUrl", UserRole.USER,
+                "socialId123");
+
+        // 반환할 장르 페이지 객체 생성
+        Page<Genre> genresPage = new PageImpl<>(List.of(genre1, genre2));
+
+        List<Track> tracks = List.of(
+                createMockTrack(1L, "Track 1", 300, true, "trackUrl1", "trackImage1", "thumbnailImage1", user, genre1),
+                createMockTrack(2L, "Track 2", 300, true, "trackUrl2", "trackImage2", "thumbnailImage2", user, genre1));
+
+        // Mock Repository 설정
+        given(genreRepository.findAll(pageable)).willReturn(genresPage);
+
+        // 임의로 genre2에 대한 트랙을 genre1의 트랙으로 설정
+        given(trackRepository.findAllByGenreId(anyLong(), any(PageRequest.class)))
+                .willReturn(new PageImpl<>(tracks));
+
+        /* When */
+        Page<GenreWithTracksOverviewResponseDto> result = genreService.getGenresWithTracksOverview(pageable);
+
+        /* Then */
+
+        assertThat(result.getContent().size()).isEqualTo(2);
+
+        assertThat(result.getContent().get(0).getGenreId()).isEqualTo(genre1.getId());
+        assertThat(result.getContent().get(0).getGenreName()).isEqualTo(genre1.getGenreName());
+        assertThat(result.getContent().get(0).getGenreImage()).isEqualTo(genre1.getGenreImage());
+        assertThat(result.getContent().get(0).getTracks().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0).getTracks().get(0).getTrackId()).isEqualTo(tracks.get(0).getId());
+        assertThat(result.getContent().get(0).getTracks().get(0).getTitle()).isEqualTo(tracks.get(0).getTitle());
+        assertThat(result.getContent().get(0).getTracks().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(0).getTracks().get(0).getThumbnailImage()).isEqualTo(tracks.get(0).getThumbnailImage());
+        assertThat(result.getContent().get(0).getTracks().get(1).getTrackId()).isEqualTo(tracks.get(1).getId());
+        assertThat(result.getContent().get(0).getTracks().get(1).getTitle()).isEqualTo(tracks.get(1).getTitle());
+        assertThat(result.getContent().get(0).getTracks().get(1).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(0).getTracks().get(1).getThumbnailImage()).isEqualTo(tracks.get(1).getThumbnailImage());
+
+        assertThat(result.getContent().get(1).getGenreId()).isEqualTo(genre2.getId());
+        assertThat(result.getContent().get(1).getGenreName()).isEqualTo(genre2.getGenreName());
+        assertThat(result.getContent().get(1).getGenreImage()).isEqualTo(genre2.getGenreImage());
+        assertThat(result.getContent().get(1).getTracks().size()).isEqualTo(2);
+        assertThat(result.getContent().get(1).getTracks().get(0).getTrackId()).isEqualTo(tracks.get(0).getId());
+        assertThat(result.getContent().get(1).getTracks().get(0).getTitle()).isEqualTo(tracks.get(0).getTitle());
+        assertThat(result.getContent().get(1).getTracks().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(1).getTracks().get(0).getThumbnailImage()).isEqualTo(tracks.get(0).getThumbnailImage());
+        assertThat(result.getContent().get(1).getTracks().get(1).getTrackId()).isEqualTo(tracks.get(1).getId());
+        assertThat(result.getContent().get(1).getTracks().get(1).getTitle()).isEqualTo(tracks.get(1).getTitle());
+        assertThat(result.getContent().get(1).getTracks().get(1).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(1).getTracks().get(1).getThumbnailImage()).isEqualTo(tracks.get(1).getThumbnailImage());
     }
 
     @Test
@@ -74,9 +123,9 @@ public class GenreServiceTest {
 
         // 장르 목록을 반환하도록 설정
         given(genreRepository.findAll()).willReturn(Arrays.asList(
-                Genre.builder().genreName("Pop").genreImage("pop_image_url").build(),
-                Genre.builder().genreName("RnB").genreImage("rnb_image_url").build(),
-                Genre.builder().genreName("Jazz").genreImage("jazz_image_url").build()));
+                createMockGenre(1L, "Pop", "pop_image_url"),
+                createMockGenre(2L, "RnB", "rnb_image_url"),
+                createMockGenre(3L, "Jazz", "jazz_image_url")));
 
         /* When */
         List<GenreResponseDto> genres = genreService.listAllGenres();
@@ -100,10 +149,12 @@ public class GenreServiceTest {
         Long genreId = 1L;
 
         // Mock User, Track 객체 생성
-        User user = createMockUser();
-        Genre genre = createMockGenre();
-        Track track = createMockTrack(user, genre);
-        TrackDetail trackDetail = createMockTrackDetail(track);
+        User user = createMockUser(1L, "testUser", "Test Display", "test@example.com", "profileImageUrl", UserRole.USER,
+                "socialId123");
+        Genre genre = createMockGenre(1L, "Test Genre", "genreImageUrl");
+        Track track = createMockTrack(1L, "Test Track", 300, true, "trackUrl", "trackImageUrl", "thumbnailImageUrl",
+                user, genre);
+        TrackDetail trackDetail = createMockTrackDetail(1L, "Test Prompt", track);
         Page<Track> trackPage = new PageImpl<>(List.of(track));
 
         given(genreRepository.findById(genreId)).willReturn(Optional.of(genre));
@@ -114,33 +165,35 @@ public class GenreServiceTest {
         GenreWithTracksResponseDto genreWithTracks = genreService.getGenreWithTracks(genreId, PageRequest.of(0, 30));
 
         /* Then */
-        assertThat(genreWithTracks.getGenreId()).isEqualTo(GENRE_ID);
-        assertThat(genreWithTracks.getGenreName()).isEqualTo(GENRE_NAME);
-        assertThat(genreWithTracks.getGenreImage()).isEqualTo(GENRE_IMAGE);
+        assertThat(genreWithTracks.getGenreId()).isEqualTo(genreId);
+        assertThat(genreWithTracks.getGenreName()).isEqualTo(genre.getGenreName());
+        assertThat(genreWithTracks.getGenreImage()).isEqualTo(genre.getGenreImage());
         assertThat(genreWithTracks.getTracks().getContent().size()).isEqualTo(1);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackId()).isEqualTo(TRACK_ID);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getTitle()).isEqualTo(TRACK_TITLE);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getDuration()).isEqualTo(DURATION);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getHasLyrics()).isEqualTo(HAS_LYRICS);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackUrl()).isEqualTo(TRACK_URL);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackImage()).isEqualTo(TRACK_IMAGE);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getThumbnailImage()).isEqualTo(THUMBNAIL_IMAGE);
-        assertThat(genreWithTracks.getTracks().getContent().get(0).getPrompt()).isEqualTo(PROMPT);
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackId()).isEqualTo(track.getId());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getTitle()).isEqualTo(track.getTitle());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getDuration()).isEqualTo(track.getDuration());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getHasLyrics()).isEqualTo(track.getHasLyrics());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackUrl()).isEqualTo(track.getTrackUrl());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getTrackImage()).isEqualTo(track.getTrackImage());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getThumbnailImage())
+                .isEqualTo(track.getThumbnailImage());
+        assertThat(genreWithTracks.getTracks().getContent().get(0).getPrompt()).isEqualTo(trackDetail.getPrompt());
     }
 
-    private User createMockUser() {
+    private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
+            UserRole role, String socialId) {
         try {
             Constructor<User> constructor = User.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             User user = constructor.newInstance();
 
-            setField(user, "userId", USER_ID);
-            setField(user, "userName", USER_NAME);
-            setField(user, "displayName", DISPLAY_NAME);
-            setField(user, "userEmail", USER_EMAIL);
-            setField(user, "profileImage", PROFILE_IMAGE);
-            setField(user, "role", USER_ROLE);
-            setField(user, "socialId", USER_SOCIAL_ID);
+            setField(user, "userId", userId);
+            setField(user, "userName", userName);
+            setField(user, "displayName", displayName);
+            setField(user, "userEmail", userEmail);
+            setField(user, "profileImage", profileImage);
+            setField(user, "role", role);
+            setField(user, "socialId", socialId);
 
             return user;
         } catch (Exception e) {
@@ -148,15 +201,15 @@ public class GenreServiceTest {
         }
     }
 
-    private Genre createMockGenre() {
+    private Genre createMockGenre(Long id, String genreName, String genreImage) {
         try {
             Constructor<Genre> constructor = Genre.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             Genre genre = constructor.newInstance();
 
-            setField(genre, "id", GENRE_ID);
-            setField(genre, "genreName", GENRE_NAME);
-            setField(genre, "genreImage", GENRE_IMAGE);
+            setField(genre, "id", id);
+            setField(genre, "genreName", genreName);
+            setField(genre, "genreImage", genreImage);
 
             return genre;
         } catch (Exception e) {
@@ -164,19 +217,20 @@ public class GenreServiceTest {
         }
     }
 
-    private Track createMockTrack(User user, Genre genre) {
+    private Track createMockTrack(Long id, String title, int duration, boolean hasLyrics,
+            String trackUrl, String trackImage, String thumbnailImage, User user, Genre genre) {
         try {
             Constructor<Track> constructor = Track.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             Track track = constructor.newInstance();
 
-            setField(track, "id", TRACK_ID);
-            setField(track, "title", TRACK_TITLE);
-            setField(track, "duration", DURATION);
-            setField(track, "hasLyrics", HAS_LYRICS);
-            setField(track, "trackUrl", TRACK_URL);
-            setField(track, "trackImage", TRACK_IMAGE);
-            setField(track, "thumbnailImage", THUMBNAIL_IMAGE);
+            setField(track, "id", id);
+            setField(track, "title", title);
+            setField(track, "duration", duration);
+            setField(track, "hasLyrics", hasLyrics);
+            setField(track, "trackUrl", trackUrl);
+            setField(track, "trackImage", trackImage);
+            setField(track, "thumbnailImage", thumbnailImage);
             setField(track, "user", user);
             setField(track, "genre", genre);
 
@@ -186,14 +240,14 @@ public class GenreServiceTest {
         }
     }
 
-    private TrackDetail createMockTrackDetail(Track track) {
+    private TrackDetail createMockTrackDetail(Long id, String prompt, Track track) {
         try {
             Constructor<TrackDetail> constructor = TrackDetail.class.getDeclaredConstructor();
             constructor.setAccessible(true);
             TrackDetail trackDetail = constructor.newInstance();
 
-            setField(trackDetail, "id", TRACK_ID);
-            setField(trackDetail, "prompt", PROMPT);
+            setField(trackDetail, "id", id);
+            setField(trackDetail, "prompt", prompt);
             setField(trackDetail, "track", track);
 
             return trackDetail;
