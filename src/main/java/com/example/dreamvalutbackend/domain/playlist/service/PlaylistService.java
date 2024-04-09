@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
-import com.example.dreamvalutbackend.domain.playlist.controller.response.CreatePlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
-import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
@@ -35,7 +35,7 @@ public class PlaylistService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreatePlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto) {
+    public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto) {
         // 유저 가져오기
         User user = userRepository.findById(1L)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
@@ -56,7 +56,7 @@ public class PlaylistService {
                 .build();
         myPlaylistRepository.save(myPlaylist);
 
-        return CreatePlaylistResponseDto.toDto(savedPlaylist);
+        return PlaylistResponseDto.toDto(savedPlaylist);
     }
 
     public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable) {
@@ -78,5 +78,22 @@ public class PlaylistService {
                 });
 
         return PlaylistWithTracksResponseDto.toDto(playlist, tracks);
+    }
+
+    @Transactional
+    public PlaylistResponseDto updatePlaylistName(Long playlistId,
+            UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to update this playlist");
+        // }
+
+        playlist.updatePlaylistName(updatePlaylistNameRequestDto.getPlaylistName());
+
+        return PlaylistResponseDto.toDto(playlist);
     }
 }

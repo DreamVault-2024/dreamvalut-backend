@@ -23,7 +23,8 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
-import com.example.dreamvalutbackend.domain.playlist.controller.response.CreatePlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
@@ -81,7 +82,7 @@ public class PlaylistServiceTest {
         given(myPlaylistRepository.save(any(MyPlaylist.class))).willReturn(myPlaylist);
 
         /* When */
-        CreatePlaylistResponseDto createPlaylistResponseDto = playlistService.createPlaylist(createPlaylistRequestDto);
+        PlaylistResponseDto createPlaylistResponseDto = playlistService.createPlaylist(createPlaylistRequestDto);
 
         /* Then */
         assertThat(createPlaylistResponseDto.getPlaylistId()).isEqualTo(playlist.getId());
@@ -110,7 +111,8 @@ public class PlaylistServiceTest {
         Page<PlaylistTrack> playlistTracks = new PageImpl<>(List.of(playlistTrack));
 
         given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
-        given(playlistTrackRepository.findAllByPlaylistId(eq(playlistId), any(Pageable.class))).willReturn(playlistTracks);
+        given(playlistTrackRepository.findAllByPlaylistId(eq(playlistId), any(Pageable.class)))
+                .willReturn(playlistTracks);
         given(trackDetailRepository.findById(eq(track.getId()))).willReturn(Optional.of(trackDetail));
 
         /* When */
@@ -124,14 +126,52 @@ public class PlaylistServiceTest {
         assertThat(playlistWithTracksResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
         assertThat(playlistWithTracksResponseDto.getOwnerName()).isEqualTo(user.getDisplayName());
         assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackId()).isEqualTo(track.getId());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTitle()).isEqualTo(track.getTitle());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getDuration()).isEqualTo(track.getDuration());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getHasLyrics()).isEqualTo(track.getHasLyrics());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackUrl()).isEqualTo(track.getTrackUrl());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackImage()).isEqualTo(track.getTrackImage());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getThumbnailImage()).isEqualTo(track.getThumbnailImage());
-        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getPrompt()).isEqualTo(trackDetail.getPrompt());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTitle())
+                .isEqualTo(track.getTitle());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getUploaderName())
+                .isEqualTo(user.getDisplayName());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getDuration())
+                .isEqualTo(track.getDuration());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getHasLyrics())
+                .isEqualTo(track.getHasLyrics());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackUrl())
+                .isEqualTo(track.getTrackUrl());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackImage())
+                .isEqualTo(track.getTrackImage());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getThumbnailImage())
+                .isEqualTo(track.getThumbnailImage());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getPrompt())
+                .isEqualTo(trackDetail.getPrompt());
+    }
+
+    @Test
+    @DisplayName("PATCH /playlist/{playlist_id} - Unit Success")
+    void updatePlaylistNameSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // 요청할 UpdatePlaylistNameRequestDto 객체 생성
+        UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto = new UpdatePlaylistNameRequestDto(
+                "Updated Playlist Name");
+
+        // Mock User, Playlist, MyPlaylist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+
+        /* When */
+        PlaylistResponseDto updatePlaylistNameResponseDto = playlistService.updatePlaylistName(playlistId,
+                updatePlaylistNameRequestDto);
+
+        /* Then */
+        assertThat(updatePlaylistNameResponseDto.getPlaylistId()).isEqualTo(playlist.getId());
+        assertThat(updatePlaylistNameResponseDto.getPlaylistName()).isEqualTo(updatePlaylistNameRequestDto.getPlaylistName());
+        assertThat(updatePlaylistNameResponseDto.getIsPublic()).isEqualTo(playlist.getIsPublic());
+        assertThat(updatePlaylistNameResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
     }
 
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,

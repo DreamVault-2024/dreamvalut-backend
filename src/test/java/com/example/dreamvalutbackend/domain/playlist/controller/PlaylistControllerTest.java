@@ -2,6 +2,7 @@ package com.example.dreamvalutbackend.domain.playlist.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
 import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
