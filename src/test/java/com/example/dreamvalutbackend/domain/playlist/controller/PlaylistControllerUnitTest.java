@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +28,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
-import com.example.dreamvalutbackend.domain.playlist.controller.response.CreatePlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
@@ -65,7 +67,7 @@ public class PlaylistControllerUnitTest {
                 .build();
 
         // PlaylistService.createPlaylist() 메소드가 리턴할 CreatePlaylistResponseDto 객체 생성
-        CreatePlaylistResponseDto createPlaylistResponseDto = CreatePlaylistResponseDto.builder()
+        PlaylistResponseDto createPlaylistResponseDto = PlaylistResponseDto.builder()
                 .playlistId(1L)
                 .playlistName("Test Playlist")
                 .isPublic(true)
@@ -181,5 +183,40 @@ public class PlaylistControllerUnitTest {
                 .andExpect(jsonPath("$.tracks.first").value(true))
                 .andExpect(jsonPath("$.tracks.numberOfElements").value(2))
                 .andExpect(jsonPath("$.tracks.empty").value(false));
+    }
+
+    @Test
+    @DisplayName("PATCH /playlists/{playlist_id} - Unit Success")
+    public void updatePlaylistNameSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // 요청할 UpdatePlaylistNameRequestDto 객체 생성
+        UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto = new UpdatePlaylistNameRequestDto(
+                "Updated Playlist Name");
+
+        // PlaylistService.updatePlaylistName() 메소드가 리턴할 PlaylistResponseDto 객체 생성
+        PlaylistResponseDto updatePlaylistNameResponseDto = PlaylistResponseDto.builder()
+                .playlistId(1L)
+                .playlistName("Updated Playlist Name")
+                .isPublic(true)
+                .isCurated(false)
+                .build();
+
+        // PlaylistService.updatePlaylistName() 메소드 Mocking
+        given(playlistService.updatePlaylistName(eq(playlistId), any(UpdatePlaylistNameRequestDto.class)))
+                .willReturn(updatePlaylistNameResponseDto);
+
+        /* When & Then */
+        mockMvc.perform(patch("/playlists/{playlist_id}", playlistId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatePlaylistNameRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.playlistId").value(1L))
+                .andExpect(jsonPath("$.playlistName").value("Updated Playlist Name"))
+                .andExpect(jsonPath("$.isPublic").value(true))
+                .andExpect(jsonPath("$.isCurated").value(false));
     }
 }
