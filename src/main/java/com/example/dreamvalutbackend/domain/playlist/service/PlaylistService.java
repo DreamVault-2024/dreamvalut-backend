@@ -1,14 +1,23 @@
 package com.example.dreamvalutbackend.domain.playlist.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.CreatePlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
+import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
+import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
+import com.example.dreamvalutbackend.domain.track.domain.Track;
+import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
+import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 
@@ -21,6 +30,8 @@ public class PlaylistService {
 
     private final PlaylistRepository playlistRepository;
     private final MyPlaylistRepository myPlaylistRepository;
+    private final PlaylistTrackRepository playlistTrackRepository;
+    private final TrackDetailRepository trackDetailRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -46,5 +57,26 @@ public class PlaylistService {
         myPlaylistRepository.save(myPlaylist);
 
         return CreatePlaylistResponseDto.toDto(savedPlaylist);
+    }
+
+    public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable) {
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        Page<TrackResponseDto> tracks = playlistTrackRepository.findAllByPlaylistId(playlistId, pageable)
+                .map(playlistTrack -> {
+                    // Track 가져오기
+                    Track track = playlistTrack.getTrack();
+
+                    // TrackDetail 가져오기
+                    TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
+                            .orElseThrow(() -> new EntityNotFoundException(
+                                    "TrackDetail not found for track id: " + track.getId()));
+
+                    // TrackResponseDto 생성
+                    return TrackResponseDto.toDto(track, trackDetail);
+                });
+
+        return PlaylistWithTracksResponseDto.toDto(playlist, tracks);
     }
 }

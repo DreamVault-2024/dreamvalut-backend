@@ -2,10 +2,12 @@ package com.example.dreamvalutbackend.domain.playlist.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,13 +16,24 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.CreatePlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
+import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
+import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
+import com.example.dreamvalutbackend.domain.track.domain.Track;
+import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
+import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
@@ -31,6 +44,10 @@ public class PlaylistServiceTest {
     private PlaylistRepository playlistRepository;
     @Mock
     private MyPlaylistRepository myPlaylistRepository;
+    @Mock
+    private PlaylistTrackRepository playlistTrackRepository;
+    @Mock
+    private TrackDetailRepository trackDetailRepository;
     @Mock
     private UserRepository userRepository;
 
@@ -73,6 +90,50 @@ public class PlaylistServiceTest {
         assertThat(createPlaylistResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
     }
 
+    @Test
+    @DisplayName("GET /playlist/{playlist_id} - Unit Success")
+    void getPlaylistWithTracksSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock Playlist, Track, TrackDetail 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+        Track track = createMockTrack(1L, "Test Track", 120, false, "testTrackUrl", "testTrackImage",
+                "testThumbnailImage", user, genre);
+        TrackDetail trackDetail = createMockTrackDetail(1L, "Test Prompt");
+        PlaylistTrack playlistTrack = createMockPlaylistTrack(1L, playlist, track);
+        Page<PlaylistTrack> playlistTracks = new PageImpl<>(List.of(playlistTrack));
+
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(playlistTrackRepository.findAllByPlaylistId(eq(playlistId), any(Pageable.class))).willReturn(playlistTracks);
+        given(trackDetailRepository.findById(eq(track.getId()))).willReturn(Optional.of(trackDetail));
+
+        /* When */
+        PlaylistWithTracksResponseDto playlistWithTracksResponseDto = playlistService.getPlaylistWithTracks(playlistId,
+                PageRequest.of(0, 30));
+
+        /* Then */
+        assertThat(playlistWithTracksResponseDto.getPlaylistId()).isEqualTo(playlist.getId());
+        assertThat(playlistWithTracksResponseDto.getPlaylistName()).isEqualTo(playlist.getPlaylistName());
+        assertThat(playlistWithTracksResponseDto.getIsPublic()).isEqualTo(playlist.getIsPublic());
+        assertThat(playlistWithTracksResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
+        assertThat(playlistWithTracksResponseDto.getOwnerName()).isEqualTo(user.getDisplayName());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackId()).isEqualTo(track.getId());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTitle()).isEqualTo(track.getTitle());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getDuration()).isEqualTo(track.getDuration());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getHasLyrics()).isEqualTo(track.getHasLyrics());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackUrl()).isEqualTo(track.getTrackUrl());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getTrackImage()).isEqualTo(track.getTrackImage());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getThumbnailImage()).isEqualTo(track.getThumbnailImage());
+        assertThat(playlistWithTracksResponseDto.getTracks().getContent().get(0).getPrompt()).isEqualTo(trackDetail.getPrompt());
+    }
+
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
             UserRole role, String socialId) {
         try {
@@ -94,6 +155,60 @@ public class PlaylistServiceTest {
         }
     }
 
+    private Genre createMockGenre(Long id, String genreName, String genreImage) {
+        try {
+            Constructor<Genre> constructor = Genre.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Genre genre = constructor.newInstance();
+
+            setField(genre, "id", id);
+            setField(genre, "genreName", genreName);
+            setField(genre, "genreImage", genreImage);
+
+            return genre;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create mock Genre", e);
+        }
+    }
+
+    private Track createMockTrack(Long id, String title, int duration, boolean hasLyrics,
+            String trackUrl, String trackImage, String thumbnailImage, User user, Genre genre) {
+        try {
+            Constructor<Track> constructor = Track.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Track track = constructor.newInstance();
+
+            setField(track, "id", id);
+            setField(track, "title", title);
+            setField(track, "duration", duration);
+            setField(track, "hasLyrics", hasLyrics);
+            setField(track, "trackUrl", trackUrl);
+            setField(track, "trackImage", trackImage);
+            setField(track, "thumbnailImage", thumbnailImage);
+            setField(track, "user", user);
+            setField(track, "genre", genre);
+
+            return track;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create mock Track", e);
+        }
+    }
+
+    private TrackDetail createMockTrackDetail(Long id, String prompt) {
+        try {
+            Constructor<TrackDetail> constructor = TrackDetail.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            TrackDetail trackDetail = constructor.newInstance();
+
+            setField(trackDetail, "id", id);
+            setField(trackDetail, "prompt", prompt);
+
+            return trackDetail;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create mock TrackDetail", e);
+        }
+    }
+
     private Playlist createMockPlaylist(Long id, String playlistName, boolean isPublic, boolean isCurated,
             User user) {
         try {
@@ -110,6 +225,22 @@ public class PlaylistServiceTest {
             return playlist;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create mock Playlist", e);
+        }
+    }
+
+    private PlaylistTrack createMockPlaylistTrack(Long id, Playlist playlist, Track track) {
+        try {
+            Constructor<PlaylistTrack> constructor = PlaylistTrack.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            PlaylistTrack playlistTrack = constructor.newInstance();
+
+            setField(playlistTrack, "id", id);
+            setField(playlistTrack, "playlist", playlist);
+            setField(playlistTrack, "track", track);
+
+            return playlistTrack;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create mock PlaylistTrack", e);
         }
     }
 
