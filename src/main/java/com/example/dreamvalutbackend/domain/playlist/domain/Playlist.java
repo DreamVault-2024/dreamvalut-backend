@@ -47,4 +47,8 @@ public class Playlist extends BaseTimeEntity {
         this.isCurated = isCurated;
         this.user = user;
     }
+
+    public void updatePlaylistName(String playlistName) {
+        this.playlistName = playlistName;
+    }
 }
