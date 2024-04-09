@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class CreatePlaylistResponseDto {
+public class PlaylistResponseDto {
 
     private Long playlistId;
     private String playlistName;
@@ -14,15 +14,15 @@ public class CreatePlaylistResponseDto {
     private Boolean isCurated;
 
     @Builder
-    public CreatePlaylistResponseDto(Long playlistId, String playlistName, Boolean isPublic, Boolean isCurated) {
+    public PlaylistResponseDto(Long playlistId, String playlistName, Boolean isPublic, Boolean isCurated) {
         this.playlistId = playlistId;
         this.playlistName = playlistName;
         this.isPublic = isPublic;
         this.isCurated = isCurated;
     }
 
-    public static CreatePlaylistResponseDto toDto(Playlist playlist) {
-        return CreatePlaylistResponseDto.builder()
+    public static PlaylistResponseDto toDto(Playlist playlist) {
+        return PlaylistResponseDto.builder()
                 .playlistId(playlist.getId())
                 .playlistName(playlist.getPlaylistName())
                 .isPublic(playlist.getIsPublic())
