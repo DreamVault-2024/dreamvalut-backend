@@ -2,6 +2,7 @@ package com.example.dreamvalutbackend.domain.playlist.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +10,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+import java.util.Arrays;
 
 import java.util.List;
 import java.util.Arrays;
@@ -23,6 +27,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,6 +40,7 @@ import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePl
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -75,6 +84,8 @@ public class PlaylistControllerUnitTest {
                 .build();
 
         // PlaylistService.createPlaylist() 메소드 Mocking
+        given(playlistService.createPlaylist(any(CreatePlaylistRequestDto.class)))
+                .willReturn(createPlaylistResponseDto);
         given(playlistService.createPlaylist(any(CreatePlaylistRequestDto.class)))
                 .willReturn(createPlaylistResponseDto);
 

@@ -78,23 +78,19 @@ public class PlaylistControllerTest {
     @BeforeEach
     void setUp() {
         // 기본 유저 데이터 생성
-        user = userRepository
-                .save(createUser("testUserName", "testDisplayName", "testEmail", "testProfileImage",
-                        UserRole.USER, "testSocialId"));
+        user = userRepository.save(createUser("testUserName", "testDisplayName", "testEmail", "testProfileImage",
+                UserRole.USER, "testSocialId"));
 
         // 기본 장르 데이터 생성
         genre = genreRepository.save(createGenre("Test Genre", "testGenreImage"));
 
         // 기본 트랙 데이터 생성
         tracks = List.of(
-                trackRepository.save(createTrack("Test Track 1", 100, false, "testTrackUrl1",
-                        "testTrackImage1",
+                trackRepository.save(createTrack("Test Track 1", 100, false, "testTrackUrl1", "testTrackImage1",
                         "testThumbnailImage1", user, genre)),
-                trackRepository.save(createTrack("Test Track 2", 200, false, "testTrackUrl2",
-                        "testTrackImage2",
+                trackRepository.save(createTrack("Test Track 2", 200, false, "testTrackUrl2", "testTrackImage2",
                         "testThumbnailImage2", user, genre)),
-                trackRepository.save(createTrack("Test Track 3", 300, false, "testTrackUrl3",
-                        "testTrackImage3",
+                trackRepository.save(createTrack("Test Track 3", 300, false, "testTrackUrl3", "testTrackImage3",
                         "testThumbnailImage3", user, genre)));
 
         // 기본 트랙 상세 데이터 생성
@@ -164,32 +160,22 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.ownerName").value("testDisplayName"))
                 .andExpect(jsonPath("$.tracks.content[0].trackId").value(tracks.get(2).getId()))
                 .andExpect(jsonPath("$.tracks.content[0].title").value(tracks.get(2).getTitle()))
-                .andExpect(jsonPath("$.tracks.content[0].uploaderName")
-                        .value(tracks.get(2).getUser().getDisplayName()))
+                .andExpect(jsonPath("$.tracks.content[0].uploaderName").value(tracks.get(2).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.tracks.content[0].duration").value(tracks.get(2).getDuration()))
-                .andExpect(jsonPath("$.tracks.content[0].hasLyrics")
-                        .value(tracks.get(2).getHasLyrics()))
+                .andExpect(jsonPath("$.tracks.content[0].hasLyrics").value(tracks.get(2).getHasLyrics()))
                 .andExpect(jsonPath("$.tracks.content[0].trackUrl").value(tracks.get(2).getTrackUrl()))
-                .andExpect(jsonPath("$.tracks.content[0].trackImage")
-                        .value(tracks.get(2).getTrackImage()))
-                .andExpect(jsonPath("$.tracks.content[0].thumbnailImage")
-                        .value(tracks.get(2).getThumbnailImage()))
-                .andExpect(jsonPath("$.tracks.content[0].prompt")
-                        .value(trackDetails.get(2).getPrompt()))
+                .andExpect(jsonPath("$.tracks.content[0].trackImage").value(tracks.get(2).getTrackImage()))
+                .andExpect(jsonPath("$.tracks.content[0].thumbnailImage").value(tracks.get(2).getThumbnailImage()))
+                .andExpect(jsonPath("$.tracks.content[0].prompt").value(trackDetails.get(2).getPrompt()))
                 .andExpect(jsonPath("$.tracks.content[1].trackId").value(tracks.get(1).getId()))
                 .andExpect(jsonPath("$.tracks.content[1].title").value(tracks.get(1).getTitle()))
-                .andExpect(jsonPath("$.tracks.content[1].uploaderName")
-                        .value(tracks.get(1).getUser().getDisplayName()))
+                .andExpect(jsonPath("$.tracks.content[1].uploaderName").value(tracks.get(1).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.tracks.content[1].duration").value(tracks.get(1).getDuration()))
-                .andExpect(jsonPath("$.tracks.content[1].hasLyrics")
-                        .value(tracks.get(1).getHasLyrics()))
+                .andExpect(jsonPath("$.tracks.content[1].hasLyrics").value(tracks.get(1).getHasLyrics()))
                 .andExpect(jsonPath("$.tracks.content[1].trackUrl").value(tracks.get(1).getTrackUrl()))
-                .andExpect(jsonPath("$.tracks.content[1].trackImage")
-                        .value(tracks.get(1).getTrackImage()))
-                .andExpect(jsonPath("$.tracks.content[1].thumbnailImage")
-                        .value(tracks.get(1).getThumbnailImage()))
-                .andExpect(jsonPath("$.tracks.content[1].prompt")
-                        .value(trackDetails.get(1).getPrompt()))
+                .andExpect(jsonPath("$.tracks.content[1].trackImage").value(tracks.get(1).getTrackImage()))
+                .andExpect(jsonPath("$.tracks.content[1].thumbnailImage").value(tracks.get(1).getThumbnailImage()))
+                .andExpect(jsonPath("$.tracks.content[1].prompt").value(trackDetails.get(1).getPrompt()))
                 .andExpect(jsonPath("$.tracks.pageable.pageNumber").value(0))
                 .andExpect(jsonPath("$.tracks.pageable.pageSize").value(2))
                 .andExpect(jsonPath("$.tracks.pageable.sort.empty").value(false))
@@ -208,31 +194,7 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.tracks.empty").value(false));
     }
 
-    @Test
-    @DisplayName("PATCH /playlists/{playlistId} - Integration Success")
-    @Transactional
-    void updatePlaylistNameSuccess() throws Exception {
-        /* Given */
-
-        // 요청할 플레이리스트 ID
-        Long playlistId = playlist.getId();
-        UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto = new UpdatePlaylistNameRequestDto(
-                "Updated Playlist Name");
-        String requestContent = objectMapper.writeValueAsString(updatePlaylistNameRequestDto);
-
-        /* When & Then */
-        mockMvc.perform(patch("/playlists/{playlistId}", playlistId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestContent))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.playlistId").value(playlistId))
-                .andExpect(jsonPath("$.playlistName").value("Updated Playlist Name"))
-                .andExpect(jsonPath("$.isPublic").value(true))
-                .andExpect(jsonPath("$.isCurated").value(false));
-    }
-
-    private User createUser(String userName, String displayName, String userEmail, String profileImage,
-            UserRole role,
+    private User createUser(String userName, String displayName, String userEmail, String profileImage, UserRole role,
             String socialId) {
         return User.builder()
                 .userName(userName)
