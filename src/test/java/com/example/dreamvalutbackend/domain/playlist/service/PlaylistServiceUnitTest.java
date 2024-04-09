@@ -39,7 +39,7 @@ import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 
-public class PlaylistServiceTest {
+public class PlaylistServiceUnitTest {
 
     @Mock
     private PlaylistRepository playlistRepository;

@@ -35,7 +35,7 @@ import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 
-public class GenreServiceTest {
+public class GenreServiceUnitTest {
 
     @Mock
     private GenreRepository genreRepository;

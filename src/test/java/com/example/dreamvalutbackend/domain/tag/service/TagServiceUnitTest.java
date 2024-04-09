@@ -31,7 +31,7 @@ import com.example.dreamvalutbackend.domain.track.repository.TrackDetailReposito
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 
-public class TagServiceTest {
+public class TagServiceUnitTest {
 
     @Mock
     private TagRepository tagRepository;
