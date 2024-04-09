@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
@@ -31,6 +32,7 @@ public class GenreService {
     private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
 
+    @Transactional(readOnly = true)
     public Page<GenreWithTracksOverviewResponseDto> getGenresWithTracksOverview(Pageable pageable) {
         // 장르들 가져오기
         Page<Genre> genres = genreRepository.findAll(pageable);
@@ -50,12 +52,14 @@ public class GenreService {
         });
     }
 
+    @Transactional(readOnly = true)
     public List<GenreResponseDto> listAllGenres() {
         return genreRepository.findAll().stream()
                 .map(genre -> GenreResponseDto.toDto(genre))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public GenreWithTracksResponseDto getGenreWithTracks(Long genreId, Pageable pageable) {
         // genreId로 해당하는 장르 가져오기
         Genre genre = genreRepository.findById(genreId)

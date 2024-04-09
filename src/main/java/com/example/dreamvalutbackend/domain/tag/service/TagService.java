@@ -28,10 +28,12 @@ public class TagService {
     private final TrackTagRepository trackTagRepository;
     private final TrackDetailRepository trackDetailRepository;
 
+    @Transactional(readOnly = true)
     public Page<TagResponseDto> listAllTags(Pageable pageable) {
         return tagRepository.findAll(pageable).map(TagResponseDto::toDto);
     }
 
+    @Transactional(readOnly = true)
     public TagWithTracksResponseDto getTagWithTracks(Long tagId, Pageable pageable) {
         // tagId로 해당하는 태그 가져오기
         Tag tag = tagRepository.findById(tagId)
