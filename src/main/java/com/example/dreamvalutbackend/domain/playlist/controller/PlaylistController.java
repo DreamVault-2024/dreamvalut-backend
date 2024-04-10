@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
@@ -64,5 +65,12 @@ public class PlaylistController {
     public ResponseEntity<Void> deletePlaylist(@PathVariable("playlist_id") Long playlistId) {
         playlistService.deletePlaylist(playlistId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{playlist_id}/tracks")
+    public ResponseEntity<Void> addTrackToPlaylist(@PathVariable("playlist_id") Long playlistId,
+            @RequestBody AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
+        playlistService.addTrackToPlaylist(playlistId, addTrackToPlaylistRequestDto);
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,12 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
+import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
@@ -18,6 +20,7 @@ import com.example.dreamvalutbackend.domain.track.controller.response.TrackRespo
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
+import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 
@@ -31,6 +34,7 @@ public class PlaylistService {
     private final PlaylistRepository playlistRepository;
     private final MyPlaylistRepository myPlaylistRepository;
     private final PlaylistTrackRepository playlistTrackRepository;
+    private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
     private final UserRepository userRepository;
 
@@ -118,5 +122,29 @@ public class PlaylistService {
 
         // 찾은 Playlist 삭제
         playlistRepository.delete(playlist);
+    }
+
+    @Transactional
+    public void addTrackToPlaylist(Long playlistId, AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // ID로 Track 찾기
+        Track track = trackRepository.findById(addTrackToPlaylistRequestDto.getTrackId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Track not found with id: " + addTrackToPlaylistRequestDto.getTrackId()));
+
+        // 이미 Playlist에 추가된 Track인지 확인
+        if (playlistTrackRepository.existsByPlaylistAndTrack(playlist, track)) {
+            throw new IllegalArgumentException("Track is already in the playlist");
+        }
+
+        // PlaylistTrack 생성
+        PlaylistTrack playlistTrack = PlaylistTrack.builder()
+                .playlist(playlist)
+                .track(track)
+                .build();
+        playlistTrackRepository.save(playlistTrack);
     }
 }
