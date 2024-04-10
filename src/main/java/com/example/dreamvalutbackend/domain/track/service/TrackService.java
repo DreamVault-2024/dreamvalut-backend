@@ -84,6 +84,7 @@ public class TrackService {
 		return TrackUploadResponseDto.toDto(savedTrack);
 	}
 
+    @Transactional(readOnly = true)
 	public TrackResponseDto getTrack(Long trackId) {
 		// Track과 TrackDetail 가져오기
 		Track track = trackRepository.findById(trackId)

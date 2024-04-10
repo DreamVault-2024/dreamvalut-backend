@@ -59,6 +59,7 @@ public class PlaylistService {
         return PlaylistResponseDto.toDto(savedPlaylist);
     }
 
+    @Transactional(readOnly = true)
     public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
