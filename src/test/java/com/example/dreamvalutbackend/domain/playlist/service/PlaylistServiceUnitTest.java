@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
@@ -37,6 +38,7 @@ import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRep
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
+import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
@@ -49,6 +51,8 @@ public class PlaylistServiceUnitTest {
     private MyPlaylistRepository myPlaylistRepository;
     @Mock
     private PlaylistTrackRepository playlistTrackRepository;
+    @Mock
+    private TrackRepository trackRepository;
     @Mock
     private TrackDetailRepository trackDetailRepository;
     @Mock
@@ -171,7 +175,8 @@ public class PlaylistServiceUnitTest {
 
         /* Then */
         assertThat(updatePlaylistNameResponseDto.getPlaylistId()).isEqualTo(playlist.getId());
-        assertThat(updatePlaylistNameResponseDto.getPlaylistName()).isEqualTo(updatePlaylistNameRequestDto.getPlaylistName());
+        assertThat(updatePlaylistNameResponseDto.getPlaylistName())
+                .isEqualTo(updatePlaylistNameRequestDto.getPlaylistName());
         assertThat(updatePlaylistNameResponseDto.getIsPublic()).isEqualTo(playlist.getIsPublic());
         assertThat(updatePlaylistNameResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
     }
@@ -198,10 +203,44 @@ public class PlaylistServiceUnitTest {
 
         /* Then */
 
-        // Playlist 삭제 호출 여부 확인 
+        // Playlist 삭제 호출 여부 확인
         verify(playlistTrackRepository).deleteByPlaylist(playlist);
         verify(myPlaylistRepository).deleteByPlaylist(playlist);
         verify(playlistRepository).delete(playlist);
+    }
+
+    @Test
+    @DisplayName("POST /playlist/{playlist_id}/tracks - Unit Success")
+    void addTrackToPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+        Long trackId = 1L;
+        AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto = new AddTrackToPlaylistRequestDto(trackId);
+
+        // Mock User, Playlist, Track 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+        Track track = createMockTrack(1L, "Test Track", 120, false, "testTrackUrl", "testTrackImage",
+                "testThumbnailImage", user, genre);
+        PlaylistTrack playlistTrack = createMockPlaylistTrack(1L, playlist, track);
+
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(trackRepository.findById(trackId)).willReturn(Optional.of(track));
+        given(playlistTrackRepository.existsByPlaylistAndTrack(playlist, track)).willReturn(false);
+        given(playlistTrackRepository.save(any(PlaylistTrack.class))).willReturn(playlistTrack);
+
+        /* When */
+        playlistService.addTrackToPlaylist(playlistId, addTrackToPlaylistRequestDto);
+
+        /* Then */
+        verify(playlistRepository).findById(playlistId);
+        verify(trackRepository).findById(trackId);
+        verify(playlistTrackRepository).existsByPlaylistAndTrack(playlist, track);
+        verify(playlistTrackRepository).save(any(PlaylistTrack.class));
     }
 
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,

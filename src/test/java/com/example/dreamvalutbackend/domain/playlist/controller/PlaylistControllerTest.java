@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
@@ -93,7 +94,9 @@ public class PlaylistControllerTest {
                 trackRepository.save(createTrack("Test Track 2", 200, false, "testTrackUrl2", "testTrackImage2",
                         "testThumbnailImage2", user, genre)),
                 trackRepository.save(createTrack("Test Track 3", 300, false, "testTrackUrl3", "testTrackImage3",
-                        "testThumbnailImage3", user, genre)));
+                        "testThumbnailImage3", user, genre)),
+                trackRepository.save(createTrack("Test Track 4", 400, false, "testTrackUrl4", "testTrackImage4",
+                        "testThumbnailImage4", user, genre)));
 
         // 기본 트랙 상세 데이터 생성
         trackDetails = List.of(
@@ -155,11 +158,11 @@ public class PlaylistControllerTest {
         mockMvc.perform(get("/playlists/{playlistId}", playlistId).param("page", "0").param("size", "2"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.playlistId").value(1))
-                .andExpect(jsonPath("$.playlistName").value("Test Playlist"))
-                .andExpect(jsonPath("$.isPublic").value(true))
-                .andExpect(jsonPath("$.isCurated").value(false))
-                .andExpect(jsonPath("$.ownerName").value("testDisplayName"))
+                .andExpect(jsonPath("$.playlistId").value(playlistId))
+                .andExpect(jsonPath("$.playlistName").value(playlist.getPlaylistName()))
+                .andExpect(jsonPath("$.isPublic").value(playlist.getIsPublic()))
+                .andExpect(jsonPath("$.isCurated").value(playlist.getIsCurated()))
+                .andExpect(jsonPath("$.ownerName").value(playlist.getUser().getDisplayName()))
                 .andExpect(jsonPath("$.tracks.content[0].trackId").value(tracks.get(2).getId()))
                 .andExpect(jsonPath("$.tracks.content[0].title").value(tracks.get(2).getTitle()))
                 .andExpect(jsonPath("$.tracks.content[0].uploaderName").value(tracks.get(2).getUser().getDisplayName()))
@@ -211,6 +214,30 @@ public class PlaylistControllerTest {
 
         // 삭제된 플레이리스트 확인
         assertThat(playlistRepository.findById(playlistId)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("POST /playlists/{playlistId}/tracks - Integration Success")
+    @Transactional
+    void addTrackToPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlistId와 trackId
+        Long playlistId = playlist.getId();
+        Long trackId = tracks.get(3).getId();
+
+        // Request Body
+        AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto = new AddTrackToPlaylistRequestDto(trackId);
+        String requestContent = objectMapper.writeValueAsString(addTrackToPlaylistRequestDto);
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlistId}/tracks", playlistId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestContent))
+                .andExpect(status().isOk());
+
+        // 플레이리스트에 트랙 추가 확인
+        assertThat(playlistTrackRepository.existsByPlaylistAndTrack(playlist, tracks.get(3))).isTrue();
     }
 
     private User createUser(String userName, String displayName, String userEmail, String profileImage, UserRole role,

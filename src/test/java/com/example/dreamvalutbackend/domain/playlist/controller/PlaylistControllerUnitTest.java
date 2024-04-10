@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
@@ -241,5 +242,34 @@ public class PlaylistControllerUnitTest {
 
         // PlaylistService.deletePlaylist() 메소드가 정상적으로 호출되었는지 확인
         verify(playlistService).deletePlaylist(playlistId);
+    }
+
+    @Test
+    @DisplayName("POST /playlists/{playlist_id}/tracks - Unit Success")
+    public void addTrackToPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID 및 track ID
+        Long playlistId = 1L;
+        Long trackId = 1L;
+
+        // 요청할 AddTrackToPlaylistRequestDto 객체 생성
+        AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto = new AddTrackToPlaylistRequestDto(trackId);
+
+        // AddTrackToPlaylistRequestDto 객체를 JSON 형태로 변환
+        String requestContent = objectMapper.writeValueAsString(addTrackToPlaylistRequestDto);
+
+        // PlaylistService.addTrackToPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).addTrackToPlaylist(eq(playlistId),
+                any(AddTrackToPlaylistRequestDto.class));
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlist_id}/tracks", playlistId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestContent))
+                .andExpect(status().isOk());
+
+        // PlaylistService.addTrackToPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).addTrackToPlaylist(eq(playlistId), any(AddTrackToPlaylistRequestDto.class));
     }
 }
