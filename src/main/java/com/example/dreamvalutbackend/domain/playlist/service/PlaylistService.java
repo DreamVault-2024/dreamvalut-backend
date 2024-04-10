@@ -97,4 +97,26 @@ public class PlaylistService {
 
         return PlaylistResponseDto.toDto(playlist);
     }
+
+    @Transactional
+    public void deletePlaylist(Long playlistId) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
+        // 찾은 Playlist와 연관된 PlaylistTrack 삭제
+        playlistTrackRepository.deleteByPlaylist(playlist);
+
+        // 찾은 Playlist와 연관된 MyPlaylist 삭제
+        myPlaylistRepository.deleteByPlaylist(playlist);
+
+        // 찾은 Playlist 삭제
+        playlistRepository.delete(playlist);
+    }
 }

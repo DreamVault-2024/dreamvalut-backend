@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,5 +58,11 @@ public class PlaylistController {
             @PathVariable("playlist_id") Long playlistId,
             @RequestBody UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
         return ResponseEntity.ok(playlistService.updatePlaylistName(playlistId, updatePlaylistNameRequestDto));
+    }
+
+    @DeleteMapping("/{playlist_id}")
+    public ResponseEntity<Void> deletePlaylist(@PathVariable("playlist_id") Long playlistId) {
+        playlistService.deletePlaylist(playlistId);
+        return ResponseEntity.noContent().build();
     }
 }
