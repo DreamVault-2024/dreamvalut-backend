@@ -1,5 +1,7 @@
 package com.example.dreamvalutbackend.domain.playlist.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +20,6 @@ public interface PlaylistTrackRepository extends JpaRepository<PlaylistTrack, Lo
     void deleteByPlaylist(Playlist playlist);
 
     boolean existsByPlaylistAndTrack(Playlist playlist, Track track);
+
+    Optional<PlaylistTrack> findByPlaylistAndTrack(Playlist playlist, Track track);
 }
