@@ -219,7 +219,7 @@ public class PlaylistServiceUnitTest {
         Long trackId = 1L;
         AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto = new AddTrackToPlaylistRequestDto(trackId);
 
-        // Mock User, Playlist, Track 객체 생성
+        // Mock User, Playlist, Track, PlaylistTrack 객체 생성
         User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
                 UserRole.USER, "testUserSocialId");
         Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
@@ -241,6 +241,39 @@ public class PlaylistServiceUnitTest {
         verify(trackRepository).findById(trackId);
         verify(playlistTrackRepository).existsByPlaylistAndTrack(playlist, track);
         verify(playlistTrackRepository).save(any(PlaylistTrack.class));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlist/{playlist_id}/tracks/{track_id} - Unit Success")
+    void deleteTrackFromPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID, Track ID
+        Long playlistId = 1L;
+        Long trackId = 1L;
+
+        // Mock User, Playlist, Track, PlaylistTrack 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+        Track track = createMockTrack(1L, "Test Track", 120, false, "testTrackUrl", "testTrackImage",
+                "testThumbnailImage", user, genre);
+        PlaylistTrack playlistTrack = createMockPlaylistTrack(1L, playlist, track);
+
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(trackRepository.findById(trackId)).willReturn(Optional.of(track));
+        given(playlistTrackRepository.findByPlaylistAndTrack(playlist, track)).willReturn(Optional.of(playlistTrack));
+        willDoNothing().given(playlistTrackRepository).delete(playlistTrack);
+
+        /* When */
+        playlistService.deleteTrackFromPlaylist(playlistId, trackId);
+
+        /* Then */
+        verify(playlistRepository).findById(playlistId);
+        verify(trackRepository).findById(trackId);
+        verify(playlistTrackRepository).findByPlaylistAndTrack(playlist, track);
+        verify(playlistTrackRepository).delete(playlistTrack);
     }
 
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,

@@ -240,6 +240,24 @@ public class PlaylistControllerTest {
         assertThat(playlistTrackRepository.existsByPlaylistAndTrack(playlist, tracks.get(3))).isTrue();
     }
 
+    @Test
+    @DisplayName("DELETE /playlists/{playlistId}/tracks/{trackId} - Integration Success")
+    @Transactional
+    void deleteTrackFromPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlistId와 trackId
+        Long playlistId = playlist.getId();
+        Long trackId = tracks.get(0).getId();
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlistId}/tracks/{trackId}", playlistId, trackId))
+                .andExpect(status().isNoContent());
+
+        // 플레이리스트에서 트랙 삭제 확인
+        assertThat(playlistTrackRepository.existsByPlaylistAndTrack(playlist, tracks.get(0))).isFalse();
+    }
+
     private User createUser(String userName, String displayName, String userEmail, String profileImage, UserRole role,
             String socialId) {
         return User.builder()
