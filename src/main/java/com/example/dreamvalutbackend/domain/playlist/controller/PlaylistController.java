@@ -73,4 +73,11 @@ public class PlaylistController {
         playlistService.addTrackToPlaylist(playlistId, addTrackToPlaylistRequestDto);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{playlist_id}/tracks/{track_id}")
+    public ResponseEntity<Void> deleteTrackFromPlaylist(@PathVariable("playlist_id") Long playlistId,
+            @PathVariable("track_id") Long trackId) {
+        playlistService.deleteTrackFromPlaylist(playlistId, trackId);
+        return ResponseEntity.noContent().build();
+    }
 }

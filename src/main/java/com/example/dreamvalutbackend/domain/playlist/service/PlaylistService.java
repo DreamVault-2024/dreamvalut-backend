@@ -130,6 +130,12 @@ public class PlaylistService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
         // ID로 Track 찾기
         Track track = trackRepository.findById(addTrackToPlaylistRequestDto.getTrackId())
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -146,5 +152,30 @@ public class PlaylistService {
                 .track(track)
                 .build();
         playlistTrackRepository.save(playlistTrack);
+    }
+
+    @Transactional
+    public void deleteTrackFromPlaylist(Long playlistId, Long trackId) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
+        // ID로 Track 찾기
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
+
+        // PlaylistTrack 찾기
+        PlaylistTrack playlistTrack = playlistTrackRepository.findByPlaylistAndTrack(playlist, track)
+                .orElseThrow(() -> new EntityNotFoundException("PlaylistTrack not found with playlist id: " + playlistId
+                        + " and track id: " + trackId));
+
+        // PlaylistTrack 삭제
+        playlistTrackRepository.delete(playlistTrack);
     }
 }
