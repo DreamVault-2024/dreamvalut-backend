@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
 import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
+import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 public interface PlaylistTrackRepository extends JpaRepository<PlaylistTrack, Long> {
 
@@ -15,4 +16,6 @@ public interface PlaylistTrackRepository extends JpaRepository<PlaylistTrack, Lo
     Page<PlaylistTrack> findAllByPlaylistId(@Param("playlistId") Long playlistId, Pageable pageable);
 
     void deleteByPlaylist(Playlist playlist);
+
+    boolean existsByPlaylistAndTrack(Playlist playlist, Track track);
 }
