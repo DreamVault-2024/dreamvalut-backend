@@ -1,9 +1,11 @@
 package com.example.dreamvalutbackend.domain.playlist.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -192,6 +194,23 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.tracks.first").value(true))
                 .andExpect(jsonPath("$.tracks.numberOfElements").value(2))
                 .andExpect(jsonPath("$.tracks.empty").value(false));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlistId} - Integration Success")
+    @Transactional
+    void deletePlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 플레이리스트 ID
+        Long playlistId = playlist.getId();
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlistId}", playlistId))
+                .andExpect(status().isNoContent());
+
+        // 삭제된 플레이리스트 확인
+        assertThat(playlistRepository.findById(playlistId)).isEmpty();
     }
 
     private User createUser(String userName, String displayName, String userEmail, String profileImage, UserRole role,

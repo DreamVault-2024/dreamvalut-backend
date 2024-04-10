@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -156,7 +158,7 @@ public class PlaylistServiceUnitTest {
         UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto = new UpdatePlaylistNameRequestDto(
                 "Updated Playlist Name");
 
-        // Mock User, Playlist, MyPlaylist 객체 생성
+        // Mock User, Playlist 객체 생성
         User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
                 UserRole.USER, "testUserSocialId");
         Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
@@ -172,6 +174,34 @@ public class PlaylistServiceUnitTest {
         assertThat(updatePlaylistNameResponseDto.getPlaylistName()).isEqualTo(updatePlaylistNameRequestDto.getPlaylistName());
         assertThat(updatePlaylistNameResponseDto.getIsPublic()).isEqualTo(playlist.getIsPublic());
         assertThat(updatePlaylistNameResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
+    }
+
+    @Test
+    @DisplayName("DELETE /playlist/{playlist_id} - Unit Success")
+    void deletePlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock User, Playlist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        willDoNothing().given(playlistTrackRepository).deleteByPlaylist(playlist);
+        willDoNothing().given(myPlaylistRepository).deleteByPlaylist(playlist);
+
+        /* When */
+        playlistService.deletePlaylist(playlistId);
+
+        /* Then */
+
+        // Playlist 삭제 호출 여부 확인 
+        verify(playlistTrackRepository).deleteByPlaylist(playlist);
+        verify(myPlaylistRepository).deleteByPlaylist(playlist);
+        verify(playlistRepository).delete(playlist);
     }
 
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
