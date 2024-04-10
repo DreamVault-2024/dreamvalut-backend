@@ -3,9 +3,12 @@ package com.example.dreamvalutbackend.domain.playlist.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
@@ -219,5 +223,73 @@ public class PlaylistControllerUnitTest {
                 .andExpect(jsonPath("$.playlistName").value("Updated Playlist Name"))
                 .andExpect(jsonPath("$.isPublic").value(true))
                 .andExpect(jsonPath("$.isCurated").value(false));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlist_id} - Unit Success")
+    public void deletePlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // PlaylistService.deletePlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).deletePlaylist(playlistId);
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlist_id}", playlistId))
+                .andExpect(status().isNoContent());
+
+        // PlaylistService.deletePlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).deletePlaylist(playlistId);
+    }
+
+    @Test
+    @DisplayName("POST /playlists/{playlist_id}/tracks - Unit Success")
+    public void addTrackToPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID 및 track ID
+        Long playlistId = 1L;
+        Long trackId = 1L;
+
+        // 요청할 AddTrackToPlaylistRequestDto 객체 생성
+        AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto = new AddTrackToPlaylistRequestDto(trackId);
+
+        // AddTrackToPlaylistRequestDto 객체를 JSON 형태로 변환
+        String requestContent = objectMapper.writeValueAsString(addTrackToPlaylistRequestDto);
+
+        // PlaylistService.addTrackToPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).addTrackToPlaylist(eq(playlistId),
+                any(AddTrackToPlaylistRequestDto.class));
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlist_id}/tracks", playlistId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestContent))
+                .andExpect(status().isOk());
+
+        // PlaylistService.addTrackToPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).addTrackToPlaylist(eq(playlistId), any(AddTrackToPlaylistRequestDto.class));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlist_id}/tracks/{track_id} - Unit Success")
+    public void deleteTrackFromPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID 및 track ID
+        Long playlistId = 1L;
+        Long trackId = 1L;
+
+        // PlaylistService.deleteTrackFromPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).deleteTrackFromPlaylist(eq(playlistId), eq(trackId));
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlist_id}/tracks/{track_id}", playlistId, trackId))
+                .andExpect(status().isNoContent());
+
+        // PlaylistService.deleteTrackFromPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).deleteTrackFromPlaylist(eq(playlistId), eq(trackId));
     }
 }

@@ -5,12 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
+import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
@@ -18,6 +20,7 @@ import com.example.dreamvalutbackend.domain.track.controller.response.TrackRespo
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
+import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
 
@@ -31,6 +34,7 @@ public class PlaylistService {
     private final PlaylistRepository playlistRepository;
     private final MyPlaylistRepository myPlaylistRepository;
     private final PlaylistTrackRepository playlistTrackRepository;
+    private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
     private final UserRepository userRepository;
 
@@ -96,5 +100,82 @@ public class PlaylistService {
         playlist.updatePlaylistName(updatePlaylistNameRequestDto.getPlaylistName());
 
         return PlaylistResponseDto.toDto(playlist);
+    }
+
+    @Transactional
+    public void deletePlaylist(Long playlistId) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
+        // 찾은 Playlist와 연관된 PlaylistTrack 삭제
+        playlistTrackRepository.deleteByPlaylist(playlist);
+
+        // 찾은 Playlist와 연관된 MyPlaylist 삭제
+        myPlaylistRepository.deleteByPlaylist(playlist);
+
+        // 찾은 Playlist 삭제
+        playlistRepository.delete(playlist);
+    }
+
+    @Transactional
+    public void addTrackToPlaylist(Long playlistId, AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
+        // ID로 Track 찾기
+        Track track = trackRepository.findById(addTrackToPlaylistRequestDto.getTrackId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Track not found with id: " + addTrackToPlaylistRequestDto.getTrackId()));
+
+        // 이미 Playlist에 추가된 Track인지 확인
+        if (playlistTrackRepository.existsByPlaylistAndTrack(playlist, track)) {
+            throw new IllegalArgumentException("Track is already in the playlist");
+        }
+
+        // PlaylistTrack 생성
+        PlaylistTrack playlistTrack = PlaylistTrack.builder()
+                .playlist(playlist)
+                .track(track)
+                .build();
+        playlistTrackRepository.save(playlistTrack);
+    }
+
+    @Transactional
+    public void deleteTrackFromPlaylist(Long playlistId, Long trackId) {
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
+        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
+        // if (!playlist.getUser().getUserName().equals("temp")) {
+        // throw new SecurityException("User not authorized to delete this playlist");
+        // }
+
+        // ID로 Track 찾기
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
+
+        // PlaylistTrack 찾기
+        PlaylistTrack playlistTrack = playlistTrackRepository.findByPlaylistAndTrack(playlist, track)
+                .orElseThrow(() -> new EntityNotFoundException("PlaylistTrack not found with playlist id: " + playlistId
+                        + " and track id: " + trackId));
+
+        // PlaylistTrack 삭제
+        playlistTrackRepository.delete(playlistTrack);
     }
 }
