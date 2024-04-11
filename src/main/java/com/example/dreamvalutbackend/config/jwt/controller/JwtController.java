@@ -2,8 +2,10 @@ package com.example.dreamvalutbackend.config.jwt.controller;
 
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dreamvalutbackend.config.exception.CustomJwtException;
@@ -15,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class JwtController {
-	@RequestMapping("/refresh")
-	public Map<String, Object> refresh(@RequestHeader("Authorization") String authHeader, String refreshToken) {
+	@PostMapping("/refresh")
+	public Map<String, Object> refresh(@RequestHeader("Authorization") String authHeader,@RequestParam String refreshToken) {
 		if (authHeader == null) {
 			throw new CustomJwtException("Access Token 이 존재하지 않습니다");
 		} else if (!authHeader.startsWith(JwtConstants.JWT_TYPE)) {
