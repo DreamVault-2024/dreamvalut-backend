@@ -28,8 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
-import com.example.dreamvalutbackend.domain.genre.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.service.GenreService;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 
 public class GenreControllerUnitTest {

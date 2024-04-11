@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,12 +30,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -92,6 +96,202 @@ public class PlaylistControllerUnitTest {
                 .andExpect(jsonPath("$.playlistName").value("Test Playlist"))
                 .andExpect(jsonPath("$.isPublic").value(true))
                 .andExpect(jsonPath("$.isCurated").value(false));
+    }
+
+    @Test
+    @DisplayName("GET /playlists?type=curated - Unit Success")
+    public void getCuratedPlaylistsWithTracksOverviewSuccess() throws Exception {
+        /* Given */
+
+        // 플레리스트와 트랙들의 Overview 정보를 담은 PlaylistWithTracksOverviewResponseDto 객체 리스트 생성
+        Page<PlaylistWithTracksOverviewResponseDto> playlistWithTracksOverviewResponseDtos = new PageImpl<>(List.of(
+                new PlaylistWithTracksOverviewResponseDto(1L, "Test Playlist 1", true, true, null, List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(1L)
+                                .title("Track 1")
+                                .uploaderName("Artist 1")
+                                .thumbnailImage("url1")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(2L)
+                                .title("Track 2")
+                                .uploaderName("Artist 2")
+                                .thumbnailImage("url2")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(3L)
+                                .title("Track 3")
+                                .uploaderName("Artist 3")
+                                .thumbnailImage("url3")
+                                .build())),
+                new PlaylistWithTracksOverviewResponseDto(2L, "Test Playlist 2", true, true, null, List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(4L)
+                                .title("Track 4")
+                                .uploaderName("Artist 4")
+                                .thumbnailImage("url4")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(5L)
+                                .title("Track 5")
+                                .uploaderName("Artist 5")
+                                .thumbnailImage("url5")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(6L)
+                                .title("Track 6")
+                                .uploaderName("Artist 6")
+                                .thumbnailImage("url6")
+                                .build()))),
+                PageRequest.of(0, 6), 2);
+
+        // PlaylistService.getPlaylistsWithTracksOverview() 메소드 Mocking
+        given(playlistService.getPlaylistsWithTracksOverview(eq("curated"), any(PageRequest.class)))
+                .willReturn(playlistWithTracksOverviewResponseDtos);
+
+        /* When & Then */
+        mockMvc.perform(get("/playlists?type=curated"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].playlistId").value(1))
+                .andExpect(jsonPath("$.content[0].playlistName").value("Test Playlist 1"))
+                .andExpect(jsonPath("$.content[0].isPublic").value(true))
+                .andExpect(jsonPath("$.content[0].isCurated").value(true))
+                .andExpect(jsonPath("$.content[0].ownerName").isEmpty())
+                .andExpect(jsonPath("$.content[0].tracks[0].trackId").value(1))
+                .andExpect(jsonPath("$.content[0].tracks[0].title").value("Track 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].uploaderName").value("Artist 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].thumbnailImage").value("url1"))
+                .andExpect(jsonPath("$.content[0].tracks[1].trackId").value(2))
+                .andExpect(jsonPath("$.content[0].tracks[1].title").value("Track 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].uploaderName").value("Artist 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].thumbnailImage").value("url2"))
+                .andExpect(jsonPath("$.content[0].tracks[2].trackId").value(3))
+                .andExpect(jsonPath("$.content[0].tracks[2].title").value("Track 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].uploaderName").value("Artist 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].thumbnailImage").value("url3"))
+                .andExpect(jsonPath("$.content[1].playlistId").value(2))
+                .andExpect(jsonPath("$.content[1].playlistName").value("Test Playlist 2"))
+                .andExpect(jsonPath("$.content[1].isPublic").value(true))
+                .andExpect(jsonPath("$.content[1].isCurated").value(true))
+                .andExpect(jsonPath("$.content[1].ownerName").isEmpty())
+                .andExpect(jsonPath("$.content[1].tracks[0].trackId").value(4))
+                .andExpect(jsonPath("$.content[1].tracks[0].title").value("Track 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].uploaderName").value("Artist 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].thumbnailImage").value("url4"))
+                .andExpect(jsonPath("$.content[1].tracks[1].trackId").value(5))
+                .andExpect(jsonPath("$.content[1].tracks[1].title").value("Track 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].uploaderName").value("Artist 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].thumbnailImage").value("url5"))
+                .andExpect(jsonPath("$.content[1].tracks[2].trackId").value(6))
+                .andExpect(jsonPath("$.content[1].tracks[2].title").value("Track 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].uploaderName").value("Artist 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].thumbnailImage").value("url6"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.size").value(6))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.numberOfElements").value(2))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true))
+                .andExpect(jsonPath("$.empty").value(false));
+    }
+
+    @Test
+    @DisplayName("GET /playlists?type=user_created - Unit Success")
+    public void getUserCreatedPlaylistsWithTracksOverviewSuccess() throws Exception {
+        /* Given */
+
+        // 플레리스트와 트랙들의 Overview 정보를 담은 PlaylistWithTracksOverviewResponseDto 객체 리스트 생성
+        Page<PlaylistWithTracksOverviewResponseDto> playlistWithTracksOverviewResponseDtos = new PageImpl<>(List.of(
+                new PlaylistWithTracksOverviewResponseDto(1L, "Test Playlist 1", true, false, "Test User", List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(1L)
+                                .title("Track 1")
+                                .uploaderName("Artist 1")
+                                .thumbnailImage("url1")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(2L)
+                                .title("Track 2")
+                                .uploaderName("Artist 2")
+                                .thumbnailImage("url2")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(3L)
+                                .title("Track 3")
+                                .uploaderName("Artist 3")
+                                .thumbnailImage("url3")
+                                .build())),
+                new PlaylistWithTracksOverviewResponseDto(2L, "Test Playlist 2", true, false, "Test User", List.of(
+                        TrackOverviewResponseDto.builder()
+                                .trackId(4L)
+                                .title("Track 4")
+                                .uploaderName("Artist 4")
+                                .thumbnailImage("url4")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(5L)
+                                .title("Track 5")
+                                .uploaderName("Artist 5")
+                                .thumbnailImage("url5")
+                                .build(),
+                        TrackOverviewResponseDto.builder()
+                                .trackId(6L)
+                                .title("Track 6")
+                                .uploaderName("Artist 6")
+                                .thumbnailImage("url6")
+                                .build()))),
+                PageRequest.of(0, 6), 2);
+
+        // PlaylistService.getPlaylistsWithTracksOverview() 메소드 Mocking
+        given(playlistService.getPlaylistsWithTracksOverview(eq("user_created"), any(PageRequest.class)))
+                .willReturn(playlistWithTracksOverviewResponseDtos);
+
+        /* When & Then */
+        mockMvc.perform(get("/playlists?type=user_created"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].playlistId").value(1))
+                .andExpect(jsonPath("$.content[0].playlistName").value("Test Playlist 1"))
+                .andExpect(jsonPath("$.content[0].isPublic").value(true))
+                .andExpect(jsonPath("$.content[0].isCurated").value(false))
+                .andExpect(jsonPath("$.content[0].ownerName").value("Test User"))
+                .andExpect(jsonPath("$.content[0].tracks[0].trackId").value(1))
+                .andExpect(jsonPath("$.content[0].tracks[0].title").value("Track 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].uploaderName").value("Artist 1"))
+                .andExpect(jsonPath("$.content[0].tracks[0].thumbnailImage").value("url1"))
+                .andExpect(jsonPath("$.content[0].tracks[1].trackId").value(2))
+                .andExpect(jsonPath("$.content[0].tracks[1].title").value("Track 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].uploaderName").value("Artist 2"))
+                .andExpect(jsonPath("$.content[0].tracks[1].thumbnailImage").value("url2"))
+                .andExpect(jsonPath("$.content[0].tracks[2].trackId").value(3))
+                .andExpect(jsonPath("$.content[0].tracks[2].title").value("Track 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].uploaderName").value("Artist 3"))
+                .andExpect(jsonPath("$.content[0].tracks[2].thumbnailImage").value("url3"))
+                .andExpect(jsonPath("$.content[1].playlistId").value(2))
+                .andExpect(jsonPath("$.content[1].playlistName").value("Test Playlist 2"))
+                .andExpect(jsonPath("$.content[1].isPublic").value(true))
+                .andExpect(jsonPath("$.content[1].isCurated").value(false))
+                .andExpect(jsonPath("$.content[1].ownerName").value("Test User"))
+                .andExpect(jsonPath("$.content[1].tracks[0].trackId").value(4))
+                .andExpect(jsonPath("$.content[1].tracks[0].title").value("Track 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].uploaderName").value("Artist 4"))
+                .andExpect(jsonPath("$.content[1].tracks[0].thumbnailImage").value("url4"))
+                .andExpect(jsonPath("$.content[1].tracks[1].trackId").value(5))
+                .andExpect(jsonPath("$.content[1].tracks[1].title").value("Track 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].uploaderName").value("Artist 5"))
+                .andExpect(jsonPath("$.content[1].tracks[1].thumbnailImage").value("url5"))
+                .andExpect(jsonPath("$.content[1].tracks[2].trackId").value(6))
+                .andExpect(jsonPath("$.content[1].tracks[2].title").value("Track 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].uploaderName").value("Artist 6"))
+                .andExpect(jsonPath("$.content[1].tracks[2].thumbnailImage").value("url6"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.size").value(6))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.numberOfElements").value(2))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true))
+                .andExpect(jsonPath("$.empty").value(false));
     }
 
     @Test
@@ -291,5 +491,43 @@ public class PlaylistControllerUnitTest {
 
         // PlaylistService.deleteTrackFromPlaylist() 메소드가 정상적으로 호출되었는지 확인
         verify(playlistService).deleteTrackFromPlaylist(eq(playlistId), eq(trackId));
+    }
+
+    @Test
+    @DisplayName("POST /playlists/{playlist_id}/follow - Unit Success")
+    public void followPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // PlaylistService.followPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).followPlaylist(playlistId);
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlist_id}/follow", playlistId))
+                .andExpect(status().isOk());
+
+        // PlaylistService.followPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).followPlaylist(playlistId);
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlist_id}/follow - Unit Success")
+    public void unfollowPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // PlaylistService.unfollowPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).unfollowPlaylist(playlistId);
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlist_id}/follow", playlistId))
+                .andExpect(status().isNoContent());
+
+        // PlaylistService.unfollowPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).unfollowPlaylist(playlistId);
     }
 }

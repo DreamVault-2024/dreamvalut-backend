@@ -3,6 +3,7 @@ package com.example.dreamvalutbackend.domain.genre.controller.response;
 import java.util.List;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 
 import lombok.Builder;
 import lombok.Getter;
