@@ -50,7 +50,7 @@ public class PlaylistController {
     @GetMapping("/{playlist_id}")
     public ResponseEntity<PlaylistWithTracksResponseDto> getPlaylistWithTracks(
             @PathVariable("playlist_id") Long playlistId,
-            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(playlistService.getPlaylistWithTracks(playlistId, pageable));
     }
 
