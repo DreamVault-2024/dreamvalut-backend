@@ -363,6 +363,56 @@ public class PlaylistServiceUnitTest {
         verify(playlistTrackRepository).delete(playlistTrack);
     }
 
+    @Test
+    @DisplayName("POST /playlist/{playlist_id}/follow - Unit Success")
+    void followPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock User, Playlist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, true, null);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(myPlaylistRepository.existsByUserAndPlaylist(user, playlist)).willReturn(false);
+
+        /* When */
+        playlistService.followPlaylist(playlistId);
+
+        /* Then */
+        verify(myPlaylistRepository).save(any(MyPlaylist.class));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlist/{playlist_id}/follow - Unit Success")
+    void unfollowPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock User, Playlist, MyPlaylist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, true, null);
+        MyPlaylist myPlaylist = createMockMyPlaylist(1L, playlist, user);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(myPlaylistRepository.findByUserAndPlaylist(user, playlist)).willReturn(Optional.of(myPlaylist));
+
+        /* When */
+        playlistService.unfollowPlaylist(playlistId);
+
+        /* Then */
+        verify(myPlaylistRepository).delete(myPlaylist);
+    }
+
+
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
             UserRole role, String socialId) {
         try {

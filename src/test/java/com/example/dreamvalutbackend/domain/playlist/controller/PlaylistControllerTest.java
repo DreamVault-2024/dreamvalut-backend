@@ -30,6 +30,7 @@ import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
+import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
 import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
@@ -79,6 +80,7 @@ public class PlaylistControllerTest {
     private List<TrackDetail> trackDetails;
     private List<PlaylistTrack> userCreatedPlaylistTracks;
     private List<PlaylistTrack> curatedPlaylistTracks;
+    private MyPlaylist myPlaylist;
 
     @BeforeEach
     void setUp() {
@@ -133,6 +135,12 @@ public class PlaylistControllerTest {
                 playlistTrackRepository.save(createPlaylistTrack(curatedPlaylists.get(1), tracks.get(1))),
                 playlistTrackRepository.save(createPlaylistTrack(curatedPlaylists.get(1), tracks.get(2))),
                 playlistTrackRepository.save(createPlaylistTrack(curatedPlaylists.get(1), tracks.get(3))));
+
+        // 내 플레이리스트 데이터 생성
+        myPlaylist = myPlaylistRepository.save(MyPlaylist.builder()
+                .playlist(curatedPlaylists.get(0))
+                .user(user)
+                .build());
     }
 
     @AfterEach
@@ -416,6 +424,34 @@ public class PlaylistControllerTest {
         // 플레이리스트에서 트랙 삭제 확인
         assertThat(playlistTrackRepository.existsByPlaylistAndTrack(userCreatedPlaylists.get(0), tracks.get(0)))
                 .isFalse();
+    }
+
+    @Test
+    @DisplayName("POST /playlists/{playlistId}/follow - Integration Success")
+    @Transactional
+    void followPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlistId
+        Long playlistId = curatedPlaylists.get(1).getId();
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlistId}/follow", playlistId))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlistId}/follow - Integration Success")
+    @Transactional
+    void unfollowPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlistId
+        Long playlistId = curatedPlaylists.get(0).getId();
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlistId}/follow", playlistId))
+                .andExpect(status().isNoContent());
     }
 
     private User createUser(String userName, String displayName, String userEmail, String profileImage, UserRole role,

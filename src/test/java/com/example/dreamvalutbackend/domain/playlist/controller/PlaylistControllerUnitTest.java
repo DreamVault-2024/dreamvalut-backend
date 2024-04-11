@@ -492,4 +492,42 @@ public class PlaylistControllerUnitTest {
         // PlaylistService.deleteTrackFromPlaylist() 메소드가 정상적으로 호출되었는지 확인
         verify(playlistService).deleteTrackFromPlaylist(eq(playlistId), eq(trackId));
     }
+
+    @Test
+    @DisplayName("POST /playlists/{playlist_id}/follow - Unit Success")
+    public void followPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // PlaylistService.followPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).followPlaylist(playlistId);
+
+        /* When & Then */
+        mockMvc.perform(post("/playlists/{playlist_id}/follow", playlistId))
+                .andExpect(status().isOk());
+
+        // PlaylistService.followPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).followPlaylist(playlistId);
+    }
+
+    @Test
+    @DisplayName("DELETE /playlists/{playlist_id}/follow - Unit Success")
+    public void unfollowPlaylistSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 playlist ID
+        Long playlistId = 1L;
+
+        // PlaylistService.unfollowPlaylist() 메소드 Mocking
+        willDoNothing().given(playlistService).unfollowPlaylist(playlistId);
+
+        /* When & Then */
+        mockMvc.perform(delete("/playlists/{playlist_id}/follow", playlistId))
+                .andExpect(status().isNoContent());
+
+        // PlaylistService.unfollowPlaylist() 메소드가 정상적으로 호출되었는지 확인
+        verify(playlistService).unfollowPlaylist(playlistId);
+    }
 }
