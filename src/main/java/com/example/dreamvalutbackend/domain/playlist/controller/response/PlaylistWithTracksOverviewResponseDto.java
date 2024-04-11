@@ -35,7 +35,7 @@ public class PlaylistWithTracksOverviewResponseDto {
                 .playlistName(playlist.getPlaylistName())
                 .isPublic(playlist.getIsPublic())
                 .isCurated(playlist.getIsCurated())
-                .ownerName(playlist.getUser().getDisplayName())
+                .ownerName(playlist.getUser() == null ? null : playlist.getUser().getDisplayName())
                 .tracks(tracks)
                 .build();
     }
