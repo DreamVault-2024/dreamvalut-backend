@@ -14,8 +14,7 @@ import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 public interface PlaylistTrackRepository extends JpaRepository<PlaylistTrack, Long> {
 
-    @Query("SELECT pt FROM PlaylistTrack pt WHERE pt.playlist.id = :playlistId ORDER BY pt.createdAt DESC")
-    Page<PlaylistTrack> findAllByPlaylistId(@Param("playlistId") Long playlistId, Pageable pageable);
+    Page<PlaylistTrack> findAllByPlaylistId(Long playlistId, Pageable pageable);
 
     void deleteByPlaylist(Playlist playlist);
 

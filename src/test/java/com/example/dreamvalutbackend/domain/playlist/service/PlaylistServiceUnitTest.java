@@ -28,6 +28,7 @@ import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrack
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
@@ -95,6 +96,92 @@ public class PlaylistServiceUnitTest {
         assertThat(createPlaylistResponseDto.getPlaylistName()).isEqualTo(playlist.getPlaylistName());
         assertThat(createPlaylistResponseDto.getIsPublic()).isEqualTo(playlist.getIsPublic());
         assertThat(createPlaylistResponseDto.getIsCurated()).isEqualTo(playlist.getIsCurated());
+    }
+
+    @Test
+    @DisplayName("GET /playlist?type=curated - Unit Success")
+    void getCuratedPlaylistWithTracksOverviewSuccess() {
+        /* Given */
+
+        String type = "curated";
+        Pageable pageable = PageRequest.of(0, 6);
+
+        // Mock User, Playlist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, true, null);
+        Track track = createMockTrack(1L, "Test Track", 120, false, "testTrackUrl", "testTrackImage",
+                "testThumbnailImage", user, genre);
+        PlaylistTrack playlistTrack = createMockPlaylistTrack(1L, playlist, track);
+
+        Page<Playlist> playlists = new PageImpl<>(List.of(playlist));
+        Page<PlaylistTrack> playlistTracks = new PageImpl<>(List.of(playlistTrack));
+
+        given(playlistRepository.findByIsCuratedTrue(pageable)).willReturn(playlists);
+        given(playlistTrackRepository.findAllByPlaylistId(eq(playlist.getId()), any(Pageable.class)))
+                .willReturn(playlistTracks);
+
+        /* When */
+        Page<PlaylistWithTracksOverviewResponseDto> result = playlistService
+                .getPlaylistsWithTracksOverview(type, pageable);
+
+        /* Then */
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPlaylistId()).isEqualTo(playlist.getId());
+        assertThat(result.getContent().get(0).getPlaylistName()).isEqualTo(playlist.getPlaylistName());
+        assertThat(result.getContent().get(0).getIsPublic()).isEqualTo(playlist.getIsPublic());
+        assertThat(result.getContent().get(0).getIsCurated()).isEqualTo(playlist.getIsCurated());
+        assertThat(result.getContent().get(0).getOwnerName()).isEqualTo(null);
+        assertThat(result.getContent().get(0).getTracks().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTracks().get(0).getTrackId()).isEqualTo(track.getId());
+        assertThat(result.getContent().get(0).getTracks().get(0).getTitle()).isEqualTo(track.getTitle());
+        assertThat(result.getContent().get(0).getTracks().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(0).getTracks().get(0).getThumbnailImage())
+                .isEqualTo(track.getThumbnailImage());
+    }
+
+    @Test
+    @DisplayName("GET /playlist?type=user_created - Unit Success")
+    void getUserCreatedPlaylistWithTracksOverviewSuccess() {
+        /* Given */
+
+        String type = "user_created";
+        Pageable pageable = PageRequest.of(0, 6);
+
+        // Mock User, Playlist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Genre genre = createMockGenre(1L, "Test Genre", "testGenreImage");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, false, user);
+        Track track = createMockTrack(1L, "Test Track", 120, false, "testTrackUrl", "testTrackImage",
+                "testThumbnailImage", user, genre);
+        PlaylistTrack playlistTrack = createMockPlaylistTrack(1L, playlist, track);
+
+        Page<Playlist> playlists = new PageImpl<>(List.of(playlist));
+        Page<PlaylistTrack> playlistTracks = new PageImpl<>(List.of(playlistTrack));
+
+        given(playlistRepository.findByIsCuratedFalseAndIsPublicTrue(pageable)).willReturn(playlists);
+        given(playlistTrackRepository.findAllByPlaylistId(eq(playlist.getId()), any(Pageable.class)))
+                .willReturn(playlistTracks);
+
+        /* When */
+        Page<PlaylistWithTracksOverviewResponseDto> result = playlistService
+                .getPlaylistsWithTracksOverview(type, pageable);
+
+        /* Then */
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPlaylistId()).isEqualTo(playlist.getId());
+        assertThat(result.getContent().get(0).getPlaylistName()).isEqualTo(playlist.getPlaylistName());
+        assertThat(result.getContent().get(0).getIsPublic()).isEqualTo(playlist.getIsPublic());
+        assertThat(result.getContent().get(0).getIsCurated()).isEqualTo(playlist.getIsCurated());
+        assertThat(result.getContent().get(0).getOwnerName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(0).getTracks().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTracks().get(0).getTrackId()).isEqualTo(track.getId());
+        assertThat(result.getContent().get(0).getTracks().get(0).getTitle()).isEqualTo(track.getTitle());
+        assertThat(result.getContent().get(0).getTracks().get(0).getUploaderName()).isEqualTo(user.getDisplayName());
+        assertThat(result.getContent().get(0).getTracks().get(0).getThumbnailImage())
+                .isEqualTo(track.getThumbnailImage());
     }
 
     @Test
@@ -275,6 +362,56 @@ public class PlaylistServiceUnitTest {
         verify(playlistTrackRepository).findByPlaylistAndTrack(playlist, track);
         verify(playlistTrackRepository).delete(playlistTrack);
     }
+
+    @Test
+    @DisplayName("POST /playlist/{playlist_id}/follow - Unit Success")
+    void followPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock User, Playlist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, true, null);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(myPlaylistRepository.existsByUserAndPlaylist(user, playlist)).willReturn(false);
+
+        /* When */
+        playlistService.followPlaylist(playlistId);
+
+        /* Then */
+        verify(myPlaylistRepository).save(any(MyPlaylist.class));
+    }
+
+    @Test
+    @DisplayName("DELETE /playlist/{playlist_id}/follow - Unit Success")
+    void unfollowPlaylistSuccess() {
+        /* Given */
+
+        // 요청할 Playlist ID
+        Long playlistId = 1L;
+
+        // Mock User, Playlist, MyPlaylist 객체 생성
+        User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
+                UserRole.USER, "testUserSocialId");
+        Playlist playlist = createMockPlaylist(1L, "Test Playlist", true, true, null);
+        MyPlaylist myPlaylist = createMockMyPlaylist(1L, playlist, user);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(myPlaylistRepository.findByUserAndPlaylist(user, playlist)).willReturn(Optional.of(myPlaylist));
+
+        /* When */
+        playlistService.unfollowPlaylist(playlistId);
+
+        /* Then */
+        verify(myPlaylistRepository).delete(myPlaylist);
+    }
+
 
     private User createMockUser(Long userId, String userName, String displayName, String userEmail, String profileImage,
             UserRole role, String socialId) {

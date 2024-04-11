@@ -1,4 +1,4 @@
-package com.example.dreamvalutbackend.domain.genre.controller.response;
+package com.example.dreamvalutbackend.domain.track.controller.response;
 
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 

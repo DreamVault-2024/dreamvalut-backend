@@ -1,7 +1,14 @@
 package com.example.dreamvalutbackend.domain.playlist.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +16,7 @@ import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrack
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.domain.MyPlaylist;
 import com.example.dreamvalutbackend.domain.playlist.domain.Playlist;
@@ -16,6 +24,7 @@ import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
 import com.example.dreamvalutbackend.domain.playlist.repository.MyPlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistRepository;
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
@@ -61,6 +70,29 @@ public class PlaylistService {
         myPlaylistRepository.save(myPlaylist);
 
         return PlaylistResponseDto.toDto(savedPlaylist);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PlaylistWithTracksOverviewResponseDto> getPlaylistsWithTracksOverview(String type, Pageable pageable) {
+        // type에 따라서 가져올 Query Function 명시
+        Map<String, Function<Pageable, Page<Playlist>>> typeToQueryFunction = Map.of(
+                "curated", playlistRepository::findByIsCuratedTrue,
+                "user_created", playlistRepository::findByIsCuratedFalseAndIsPublicTrue);
+
+        // Playlist 가져오기
+        Page<Playlist> playlistPage = typeToQueryFunction.get(type).apply(pageable);
+
+        // PlaylistWithTracksOverviewResponseDto로 변환하여 반환
+        return playlistPage.map(playlist -> {
+            // Playlist에 해당하는 Track 가져오기
+            List<TrackOverviewResponseDto> tracks = playlistTrackRepository
+                    .findAllByPlaylistId(playlist.getId(), PageRequest.of(0, 3, Sort.by("createdAt").descending()))
+                    .stream()
+                    .map(PlaylistTrack::getTrack)
+                    .map(TrackOverviewResponseDto::toDto)
+                    .collect(Collectors.toList());
+            return PlaylistWithTracksOverviewResponseDto.toDto(playlist, tracks);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -177,5 +209,46 @@ public class PlaylistService {
 
         // PlaylistTrack 삭제
         playlistTrackRepository.delete(playlistTrack);
+    }
+
+    @Transactional
+    public void followPlaylist(Long playlistId) {
+        // TODO: 로그인한 유저 정보 가져오기
+        User user = userRepository.findById(1L)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // 이미 Playlist을 팔로우 중인지 확인
+        if (myPlaylistRepository.existsByUserAndPlaylist(user, playlist)) {
+            throw new IllegalArgumentException("Playlist is already followed by the user");
+        }
+
+        // MyPlaylist 생성
+        MyPlaylist myPlaylist = MyPlaylist.builder()
+                .playlist(playlist)
+                .user(user)
+                .build();
+        myPlaylistRepository.save(myPlaylist);
+    }
+
+    @Transactional
+    public void unfollowPlaylist(Long playlistId) {
+        // TODO: 로그인한 유저 정보 가져오기
+        User user = userRepository.findById(1L)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // MyPlaylist 찾기 (팔로우 중인지 확인)
+        MyPlaylist myPlaylist = myPlaylistRepository.findByUserAndPlaylist(user, playlist)
+                .orElseThrow(() -> new EntityNotFoundException("User is not following this playlist"));
+
+        // MyPlaylist 삭제
+        myPlaylistRepository.delete(myPlaylist);
     }
 }
