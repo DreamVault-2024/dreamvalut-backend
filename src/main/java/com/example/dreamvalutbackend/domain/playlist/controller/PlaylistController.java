@@ -3,6 +3,7 @@ package com.example.dreamvalutbackend.domain.playlist.controller;
 import java.net.URI;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistResponseDto;
+import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
+import com.example.dreamvalutbackend.domain.playlist.validation.annotation.ValidPlaylistType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +49,13 @@ public class PlaylistController {
 
         return ResponseEntity.created(location)
                 .body(createPlaylistResponseDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<PlaylistWithTracksOverviewResponseDto>> getPlaylistsWithTracksOverview(
+            @ValidPlaylistType @RequestParam("type") String type,
+            @PageableDefault(page = 0, size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(playlistService.getPlaylistsWithTracksOverview(type, pageable));
     }
 
     @GetMapping("/{playlist_id}")
