@@ -91,4 +91,16 @@ public class PlaylistController {
         playlistService.deleteTrackFromPlaylist(playlistId, trackId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{playlist_id}/follow")
+    public ResponseEntity<Void> followPlaylist(@PathVariable("playlist_id") Long playlistId) {
+        playlistService.followPlaylist(playlistId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{playlist_id}/follow")
+    public ResponseEntity<Void> unfollowPlaylist(@PathVariable("playlist_id") Long playlistId) {
+        playlistService.unfollowPlaylist(playlistId);
+        return ResponseEntity.noContent().build();
+    }
 }

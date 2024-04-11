@@ -210,4 +210,45 @@ public class PlaylistService {
         // PlaylistTrack 삭제
         playlistTrackRepository.delete(playlistTrack);
     }
+
+    @Transactional
+    public void followPlaylist(Long playlistId) {
+        // TODO: 로그인한 유저 정보 가져오기
+        User user = userRepository.findById(1L)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // 이미 Playlist을 팔로우 중인지 확인
+        if (myPlaylistRepository.existsByUserAndPlaylist(user, playlist)) {
+            throw new IllegalArgumentException("Playlist is already followed by the user");
+        }
+
+        // MyPlaylist 생성
+        MyPlaylist myPlaylist = MyPlaylist.builder()
+                .playlist(playlist)
+                .user(user)
+                .build();
+        myPlaylistRepository.save(myPlaylist);
+    }
+
+    @Transactional
+    public void unfollowPlaylist(Long playlistId) {
+        // TODO: 로그인한 유저 정보 가져오기
+        User user = userRepository.findById(1L)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+
+        // ID로 Playlist 찾기
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // MyPlaylist 찾기 (팔로우 중인지 확인)
+        MyPlaylist myPlaylist = myPlaylistRepository.findByUserAndPlaylist(user, playlist)
+                .orElseThrow(() -> new EntityNotFoundException("User is not following this playlist"));
+
+        // MyPlaylist 삭제
+        myPlaylistRepository.delete(myPlaylist);
+    }
 }
