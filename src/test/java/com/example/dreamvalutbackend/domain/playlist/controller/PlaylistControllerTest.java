@@ -281,18 +281,22 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.content[1].playlistName").value(userCreatedPlaylists.get(0).getPlaylistName()))
                 .andExpect(jsonPath("$.content[1].isPublic").value(userCreatedPlaylists.get(0).getIsPublic()))
                 .andExpect(jsonPath("$.content[1].isCurated").value(userCreatedPlaylists.get(0).getIsCurated()))
-                .andExpect(jsonPath("$.content[1].ownerName").value(userCreatedPlaylists.get(0).getUser().getDisplayName()))
+                .andExpect(jsonPath("$.content[1].ownerName")
+                        .value(userCreatedPlaylists.get(0).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.content[1].tracks[0].trackId").value(tracks.get(2).getId()))
                 .andExpect(jsonPath("$.content[1].tracks[0].title").value(tracks.get(2).getTitle()))
-                .andExpect(jsonPath("$.content[1].tracks[0].uploaderName").value(tracks.get(2).getUser().getDisplayName()))
+                .andExpect(
+                        jsonPath("$.content[1].tracks[0].uploaderName").value(tracks.get(2).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.content[1].tracks[0].thumbnailImage").value(tracks.get(2).getThumbnailImage()))
                 .andExpect(jsonPath("$.content[1].tracks[1].trackId").value(tracks.get(1).getId()))
                 .andExpect(jsonPath("$.content[1].tracks[1].title").value(tracks.get(1).getTitle()))
-                .andExpect(jsonPath("$.content[1].tracks[1].uploaderName").value(tracks.get(1).getUser().getDisplayName()))
+                .andExpect(
+                        jsonPath("$.content[1].tracks[1].uploaderName").value(tracks.get(1).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.content[1].tracks[1].thumbnailImage").value(tracks.get(1).getThumbnailImage()))
                 .andExpect(jsonPath("$.content[1].tracks[2].trackId").value(tracks.get(0).getId()))
                 .andExpect(jsonPath("$.content[1].tracks[2].title").value(tracks.get(0).getTitle()))
-                .andExpect(jsonPath("$.content[1].tracks[2].uploaderName").value(tracks.get(0).getUser().getDisplayName()))
+                .andExpect(
+                        jsonPath("$.content[1].tracks[2].uploaderName").value(tracks.get(0).getUser().getDisplayName()))
                 .andExpect(jsonPath("$.content[1].tracks[2].thumbnailImage").value(tracks.get(0).getThumbnailImage()))
                 .andExpect(jsonPath("$.pageable.pageNumber").value(0))
                 .andExpect(jsonPath("$.pageable.pageSize").value(2))
@@ -363,6 +367,29 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.tracks.first").value(true))
                 .andExpect(jsonPath("$.tracks.numberOfElements").value(2))
                 .andExpect(jsonPath("$.tracks.empty").value(false));
+    }
+
+    @Test
+    @DisplayName("PATCH /playlists/{playlistId} - Integration Success")
+    @Transactional
+    void updatePlaylistNameSuccess() throws Exception {
+        /* Given */
+
+        // 요청할 플레이리스트 ID
+        Long playlistId = userCreatedPlaylists.get(0).getId();
+        UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto = new UpdatePlaylistNameRequestDto(
+                "Updated Playlist Name");
+        String requestContent = objectMapper.writeValueAsString(updatePlaylistNameRequestDto);
+
+        /* When & Then */
+        mockMvc.perform(patch("/playlists/{playlistId}", playlistId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestContent))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.playlistId").value(playlistId))
+                .andExpect(jsonPath("$.playlistName").value("Updated Playlist Name"))
+                .andExpect(jsonPath("$.isPublic").value(userCreatedPlaylists.get(0).getIsPublic()))
+                .andExpect(jsonPath("$.isCurated").value(userCreatedPlaylists.get(0).getIsCurated()));
     }
 
     @Test
