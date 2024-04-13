@@ -204,6 +204,7 @@ public class PlaylistServiceUnitTest {
         Page<PlaylistTrack> playlistTracks = new PageImpl<>(List.of(playlistTrack));
 
         given(playlistRepository.findById(playlistId)).willReturn(Optional.of(playlist));
+        given(userRepository.findById(user.getUserId())).willReturn(Optional.of(user));
         given(playlistTrackRepository.findAllByPlaylistId(eq(playlistId), any(Pageable.class)))
                 .willReturn(playlistTracks);
         given(trackDetailRepository.findById(eq(track.getId()))).willReturn(Optional.of(trackDetail));
