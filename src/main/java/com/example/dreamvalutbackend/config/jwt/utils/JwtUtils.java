@@ -52,7 +52,8 @@ public class JwtUtils {
 
 		String email = (String) claims.get("email");
 		String name = (String) claims.get("name");
-			String role = (String) claims.get("role");
+		String role = (String) claims.get("role");
+		String userId = (String) claims.get("userId");
 		UserRole userRole = UserRole.valueOf(role);
 
 		User user = User.builder().userEmail(email).userName(name).role(userRole).build();
