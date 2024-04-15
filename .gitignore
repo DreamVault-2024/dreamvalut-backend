@@ -165,3 +165,6 @@ application-*.yml
 
 ## Database Initialization ##
 init.sql
+
+
+redis/data/
