@@ -23,7 +23,7 @@ public class ThumbnailImageMultipartFile implements MultipartFile {
     public ThumbnailImageMultipartFile(MultipartFile file, String trackTitle) throws IOException {
         this.bytes = ImageResizer.resize(file, 300, 300);
         this.name = "thumbnailImage";
-        this.originalFilename = "image/" + UUID.randomUUID().toString() + "-" + trackTitle + "-thumbnail" + ".jpeg";
+        this.originalFilename = "thumbnail/" + UUID.randomUUID().toString() + "-" + trackTitle + ".jpeg";
         this.contentType = file.getContentType();
         this.isEmpty = this.bytes == null || this.bytes.length == 0;
         this.size = this.bytes.length;
