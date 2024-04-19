@@ -83,10 +83,14 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:0.12.3"
 
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.2.2'
+    implementation 'org.springframework.boot:spring-boot-starter-cache:3.2.3'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
 }
 
 tasks.named('test') {

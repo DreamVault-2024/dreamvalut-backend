@@ -7,6 +7,7 @@ import com.example.dreamvalutbackend.redis.domain.Token;
 import com.example.dreamvalutbackend.redis.repository.TokenRepository;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,24 +35,29 @@ public class CommonLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		Map<String, Object> responseMap = principal.getUserInfo();
 
+		String accessToken = JwtUtils.generateToken(responseMap, JwtConstants.ACCESS_EXP_TIME);
 		String refreshToken = JwtUtils.generateToken(responseMap, JwtConstants.REFRESH_EXP_TIME);
-
-		responseMap.put("accessToken", JwtUtils.generateToken(responseMap, JwtConstants.ACCESS_EXP_TIME));
-		responseMap.put("refreshToken", refreshToken);
 
 		Long userId = principal.getUserId();
 		Token token = new Token(refreshToken, userId);
 		tokenRepository.save(token);
 
 
-		Gson gson = new Gson();
-		String json = gson.toJson(responseMap);
+		response.addCookie(createCookie("accessToken", accessToken, JwtConstants.ACCESS_EXP_TIME, true, false));
 
-		response.setContentType("application/json; charset=UTF-8");
+		response.addCookie(createCookie("refreshToken", refreshToken, JwtConstants.REFRESH_EXP_TIME, true, false));
 
-		PrintWriter writer = response.getWriter();
-		writer.println(json);
-		writer.flush();
+		String clientUrl = "http://localhost:3000/genre";
+		response.sendRedirect(clientUrl);
+	}
+
+	private Cookie createCookie(String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(maxAge);
+		cookie.setHttpOnly(httpOnly);
+		// cookie.setSecure(secure);
+		cookie.setPath("/");
+		return cookie;
 	}
 
 }
