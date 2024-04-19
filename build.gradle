@@ -31,6 +31,10 @@ java {
     sourceCompatibility = '17'
 }
 
+jar {
+    enabled = false
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -57,6 +61,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.assertj:assertj-core:3.25.3'
+
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // AWS S3
     implementation 'software.amazon.awssdk:s3:2.25.18'
