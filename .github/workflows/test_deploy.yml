@@ -67,8 +67,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --build-arg JAR_FILE=$JAR_FILE -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $DOCKER_FILE .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker buildx create --name multi-arch-builder --driver docker-container --bootstrap --use
+          docker buildx build --platform linux/arm64,linux/amd64 --build-arg JAR_FILE=build/libs/\*.jar -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --push -f $DOCKER_FILE
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Download Amazon ECS task definition
