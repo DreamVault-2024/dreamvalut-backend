@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -50,13 +51,15 @@ public class JwtUtils {
 	public static Authentication getAuthentication(String token) {
 		Map<String, Object> claims = validateToken(token);
 
-		String email = (String) claims.get("email");
-		String name = (String) claims.get("name");
 		String role = (String) claims.get("role");
-		String userId = (String) claims.get("userId");
+		String name = (String) claims.get("name");
+		String email = (String) claims.get("email");
+		String userIdString = (String) claims.get("userId");
 		UserRole userRole = UserRole.valueOf(role);
 
-		User user = User.builder().userEmail(email).userName(name).role(userRole).build();
+		Long userId = Long.parseLong(userIdString);
+
+		User user = User.builder().role(userRole).userName(name).userEmail(email).userId(userId).build();
 		Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue()));
 		UserDetailPrincipal principalDetail = new UserDetailPrincipal(user, authorities);
 
