@@ -21,9 +21,7 @@ import java.util.Map;
 
 @Slf4j
 public class JwtVerifyFilter extends OncePerRequestFilter {
-
-	// 상품 이미지가 보이지 않기에 상품 이미지를 출력하는 /api/items/view 경로를 추가
-	private static final String[] whitelist = {"/signUp", "/login" , "/refresh", "/", "/index.html"};
+	private static final String[] whitelist = {"/signUp", "/login" , "/refresh", "/tracks/**", "playlists/**"};
 
 	private static void checkAuthorizationHeader(String header) {
 		if(header == null) {
@@ -36,9 +34,8 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
 	// 필터를 거치지 않을 URL 을 설정하고, true 를 return 하면 현재 필터를 건너뛰고 다음 필터로 이동
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return true;
-		// String requestURI = request.getRequestURI();
-		// return PatternMatchUtils.simpleMatch(whitelist, requestURI);
+		String requestURI = request.getRequestURI();
+		return !PatternMatchUtils.simpleMatch(whitelist, requestURI);
 	}
 
 	@Override
