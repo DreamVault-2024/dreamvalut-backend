@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dreamvalutbackend.domain.like.repository.LikeRepository;
 import com.example.dreamvalutbackend.domain.tag.controller.response.TagResponseDto;
 import com.example.dreamvalutbackend.domain.tag.controller.response.TagWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.tag.domain.Tag;
@@ -27,6 +28,7 @@ public class TagService {
     private final TagRepository tagRepository;
     private final TrackTagRepository trackTagRepository;
     private final TrackDetailRepository trackDetailRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public Page<TagResponseDto> listAllTags(Pageable pageable) {
@@ -45,7 +47,8 @@ public class TagService {
                     Track track = trackTag.getTrack();
                     TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
                             .orElseThrow(() -> new IllegalArgumentException("TrackDetail not found"));
-                    return TrackResponseDto.toDto(track, trackDetail);
+                    Long likes = likeRepository.countByTrackId(track.getId());
+                    return TrackResponseDto.toDto(track, trackDetail, likes);
                 });
 
         // 태그와 트랙들을 DTO로 변환하여 반환

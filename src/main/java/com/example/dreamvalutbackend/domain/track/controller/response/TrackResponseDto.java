@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.track.controller.response;
 
+import com.example.dreamvalutbackend.domain.like.domain.Like;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 
@@ -18,10 +19,11 @@ public class TrackResponseDto {
     private String trackImage;
     private String thumbnailImage;
     private String prompt;
+    private Long likes;
 
     @Builder
     public TrackResponseDto(Long trackId, String title, String uploaderName, Integer duration, Boolean hasLyrics,
-            String trackUrl, String trackImage, String thumbnailImage, String prompt) {
+            String trackUrl, String trackImage, String thumbnailImage, String prompt, Long likes) {
         this.trackId = trackId;
         this.title = title;
         this.uploaderName = uploaderName;
@@ -31,9 +33,10 @@ public class TrackResponseDto {
         this.trackImage = trackImage;
         this.thumbnailImage = thumbnailImage;
         this.prompt = prompt;
+        this.likes = likes;
     }
 
-    public static TrackResponseDto toDto(Track track, TrackDetail trackDetail) {
+    public static TrackResponseDto toDto(Track track, TrackDetail trackDetail, Long likes) {
         return TrackResponseDto.builder()
                 .trackId(track.getId())
                 .title(track.getTitle())
@@ -44,6 +47,7 @@ public class TrackResponseDto {
                 .trackImage(track.getTrackImage())
                 .thumbnailImage(track.getThumbnailImage())
                 .prompt(trackDetail.getPrompt())
+                .likes(likes)
                 .build();
     }
 }

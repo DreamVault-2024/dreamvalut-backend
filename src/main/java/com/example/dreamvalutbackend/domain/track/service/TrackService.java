@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
+import com.example.dreamvalutbackend.domain.like.repository.LikeRepository;
 import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
@@ -40,6 +41,8 @@ public class TrackService {
 
 	private final ImageUploader imageUploader;
 	private final AudioUploader audioUploader;
+
+	private final LikeRepository likeRepository;
 
 	@Transactional
 	public TrackUploadResponseDto uploadTrack(TrackUploadRequestDto trackUploadRequestDto,
@@ -92,8 +95,10 @@ public class TrackService {
 		TrackDetail trackDetail = trackDetailRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("TrackDetail not found with trackId: " + trackId));
 
+		Long likes = likeRepository.countByTrackId(trackId);
+
 		// TrackResponseDto로 변환하여 반환
-		return TrackResponseDto.toDto(track, trackDetail);
+		return TrackResponseDto.toDto(track, trackDetail, likes);
 	}
 
 	@Transactional

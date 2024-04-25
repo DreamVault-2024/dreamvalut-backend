@@ -15,6 +15,7 @@ import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithT
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
+import com.example.dreamvalutbackend.domain.like.repository.LikeRepository;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
@@ -31,6 +32,7 @@ public class GenreService {
     private final GenreRepository genreRepository;
     private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public Page<GenreWithTracksOverviewResponseDto> getGenresWithTracksOverview(Pageable pageable) {
@@ -72,7 +74,8 @@ public class GenreService {
         Page<TrackResponseDto> trackResponseDtos = tracks.map(track -> {
             TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Track detail not found"));
-            return TrackResponseDto.toDto(track, trackDetail);
+            Long likes = likeRepository.countByTrackId(track.getId());
+            return TrackResponseDto.toDto(track, trackDetail, likes);
         });
 
         return GenreWithTracksResponseDto.toDto(genre, trackResponseDtos);
