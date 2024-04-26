@@ -125,7 +125,7 @@ public class TrackControllerUnitTest {
 				.build();
 
 		// TrackService.getTrack() 메소드가 호출될 때 리턴할 TrackResponseDto 객체 설정
-		given(trackService.getTrack(any(Long.class))).willReturn(trackResponseDto);
+		given(trackService.getTrack(any(Long.class),any(Long.class))).willReturn(trackResponseDto);
 
 		/* When & Then */
 		mockMvc.perform(get("/tracks/{track_id}", trackId))

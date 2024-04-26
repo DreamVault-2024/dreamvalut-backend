@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -17,6 +18,7 @@ import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploa
 import com.example.dreamvalutbackend.domain.track.service.TrackService;
 import com.example.dreamvalutbackend.domain.track.validation.annotation.ValidTrackAudio;
 import com.example.dreamvalutbackend.domain.track.validation.annotation.ValidTrackImage;
+import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -57,8 +59,10 @@ public class TrackController {
 
 	@GetMapping("/{track_id}")
 	@Operation(summary = "특정 곡 정보 가져오기", description = "특정 곡의 음악 상세정보 가져오기 및 스트리밍하기")
-	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId) {
-		return ResponseEntity.ok(trackService.getTrack(trackId));
+	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId, @AuthenticationPrincipal
+		UserDetailPrincipal userDetailPrincipal) {
+		Long userId = userDetailPrincipal.getUserId();
+		return ResponseEntity.ok(trackService.getTrack(userId, trackId));
 	}
 
 	@PostMapping("/{track_id}/stream_events")

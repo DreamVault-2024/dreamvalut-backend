@@ -88,7 +88,7 @@ public class TrackService {
 	}
 
     @Transactional(readOnly = true)
-	public TrackResponseDto getTrack(Long trackId) {
+	public TrackResponseDto getTrack(Long userId, Long trackId) {
 		// Track과 TrackDetail 가져오기
 		Track track = trackRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
@@ -96,9 +96,10 @@ public class TrackService {
 				.orElseThrow(() -> new EntityNotFoundException("TrackDetail not found with trackId: " + trackId));
 
 		Long likes = likeRepository.countByTrackId(trackId);
+		Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, trackId);
 
 		// TrackResponseDto로 변환하여 반환
-		return TrackResponseDto.toDto(track, trackDetail, likes);
+		return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
 	}
 
 	@Transactional

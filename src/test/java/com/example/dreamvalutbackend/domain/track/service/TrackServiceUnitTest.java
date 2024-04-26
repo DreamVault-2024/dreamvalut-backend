@@ -128,6 +128,7 @@ public class TrackServiceUnitTest {
 
         // 요청할 Track ID
         Long trackId = 1L;
+        Long userId = 1L;
 
         // Mock User, Genre, Track 객체 생성
         User user = createMockUser(1L, "userName", "displayName", "userEmail", "profileImage", UserRole.USER, "socialId");
@@ -140,7 +141,7 @@ public class TrackServiceUnitTest {
         given(trackDetailRepository.findById(any(Long.class))).willReturn(Optional.of(trackDetail));
 
         /* When */
-        TrackResponseDto trackResponseDto = trackService.getTrack(trackId);
+        TrackResponseDto trackResponseDto = trackService.getTrack(userId,trackId);
 
         /* Then */
         assertThat(trackResponseDto).isNotNull();

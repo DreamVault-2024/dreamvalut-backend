@@ -99,7 +99,7 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
-    public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable) {
+    public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable, Long userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
@@ -123,9 +123,10 @@ public class PlaylistService {
                                     "TrackDetail not found for track id: " + track.getId()));
 
                     Long likes = likeRepository.countByTrackId(track.getId());
+                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
 
                     // TrackResponseDto 생성
-                    return TrackResponseDto.toDto(track, trackDetail, likes);
+                    return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
                 });
 
         return PlaylistWithTracksResponseDto.toDto(playlist, tracks);

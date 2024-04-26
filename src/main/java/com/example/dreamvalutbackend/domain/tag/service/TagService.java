@@ -36,7 +36,7 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public TagWithTracksResponseDto getTagWithTracks(Long tagId, Pageable pageable) {
+    public TagWithTracksResponseDto getTagWithTracks(Long tagId, Pageable pageable, Long userId) {
         // tagId로 해당하는 태그 가져오기
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
@@ -48,7 +48,8 @@ public class TagService {
                     TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
                             .orElseThrow(() -> new IllegalArgumentException("TrackDetail not found"));
                     Long likes = likeRepository.countByTrackId(track.getId());
-                    return TrackResponseDto.toDto(track, trackDetail, likes);
+                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
+                    return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
                 });
 
         // 태그와 트랙들을 DTO로 변환하여 반환

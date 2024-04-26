@@ -147,6 +147,7 @@ public class GenreServiceUnitTest {
 
         // 요청할 Genre ID
         Long genreId = 1L;
+        Long userId = 1L;
 
         // Mock User, Track 객체 생성
         User user = createMockUser(1L, "testUser", "Test Display", "test@example.com", "profileImageUrl", UserRole.USER,
@@ -162,7 +163,7 @@ public class GenreServiceUnitTest {
         given(trackDetailRepository.findById(track.getId())).willReturn(Optional.of(trackDetail));
 
         /* When */
-        GenreWithTracksResponseDto genreWithTracks = genreService.getGenreWithTracks(genreId, PageRequest.of(0, 30));
+        GenreWithTracksResponseDto genreWithTracks = genreService.getGenreWithTracks(genreId, PageRequest.of(0, 30), userId);
 
         /* Then */
         assertThat(genreWithTracks.getGenreId()).isEqualTo(genreId);

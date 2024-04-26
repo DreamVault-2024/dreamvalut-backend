@@ -210,7 +210,7 @@ public class GenreControllerUnitTest {
                 .tracks(dummyTracks)
                 .build();
 
-        given(genreService.getGenreWithTracks(eq(genreId), any(PageRequest.class)))
+        given(genreService.getGenreWithTracks(eq(genreId), any(PageRequest.class), any(long.class)))
                 .willReturn(genreWithTracksResponseDto);
 
         /* When & Then */

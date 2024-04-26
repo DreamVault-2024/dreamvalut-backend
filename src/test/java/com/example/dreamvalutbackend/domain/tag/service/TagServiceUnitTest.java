@@ -81,6 +81,7 @@ public class TagServiceUnitTest {
 
         // 요청할 Tag ID
         Long tagId = 1L;
+        Long userId = 1L;
 
         // Mock Tag, Track, TrackDetail 객체 생성
         Tag tag = createMockTag(tagId, "Test Tag", "test_tag_image_url");
@@ -98,7 +99,7 @@ public class TagServiceUnitTest {
         given(trackDetailRepository.findById(track.getId())).willReturn(Optional.of(trackDetail));
 
         /* When */
-        TagWithTracksResponseDto result = tagService.getTagWithTracks(tagId, PageRequest.of(0, 30));
+        TagWithTracksResponseDto result = tagService.getTagWithTracks(tagId, PageRequest.of(0, 30), userId);
 
         /* Then */
         assertThat(result.getTagId()).isEqualTo(1L);

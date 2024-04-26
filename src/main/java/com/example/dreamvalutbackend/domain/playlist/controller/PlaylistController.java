@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -26,6 +27,7 @@ import com.example.dreamvalutbackend.domain.playlist.controller.response.Playlis
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
 import com.example.dreamvalutbackend.domain.playlist.validation.annotation.ValidPlaylistType;
+import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +67,10 @@ public class PlaylistController {
     @Operation(summary = "특정 플레이스트 정보 가져오기")
     public ResponseEntity<PlaylistWithTracksResponseDto> getPlaylistWithTracks(
             @PathVariable("playlist_id") Long playlistId,
-            @PageableDefault(page = 0, size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(playlistService.getPlaylistWithTracks(playlistId, pageable));
+            @PageableDefault(page = 0, size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+        Long userId = userDetailPrincipal.getUserId();
+        return ResponseEntity.ok(playlistService.getPlaylistWithTracks(playlistId, pageable, userId));
     }
 
     @PatchMapping("/{playlist_id}")

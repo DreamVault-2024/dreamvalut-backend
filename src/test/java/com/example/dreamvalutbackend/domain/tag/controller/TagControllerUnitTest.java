@@ -127,7 +127,7 @@ public class TagControllerUnitTest {
                 .tracks(tagResponseDtoPage)
                 .build();
 
-        given(tagService.getTagWithTracks(any(Long.class), any(Pageable.class))).willReturn(tagWithTracksResponseDto);
+        given(tagService.getTagWithTracks(any(Long.class), any(Pageable.class), any(Long.class))).willReturn(tagWithTracksResponseDto);
 
         /* When & Then */
         mockMvc.perform(get("/tags/{tag_id}/tracks", tagId))

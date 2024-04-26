@@ -62,7 +62,7 @@ public class GenreService {
     }
 
     @Transactional(readOnly = true)
-    public GenreWithTracksResponseDto getGenreWithTracks(Long genreId, Pageable pageable) {
+    public GenreWithTracksResponseDto getGenreWithTracks(Long genreId, Pageable pageable, Long userId) {
         // genreId로 해당하는 장르 가져오기
         Genre genre = genreRepository.findById(genreId)
                 .orElseThrow(() -> new IllegalArgumentException("Genre not found"));
@@ -75,7 +75,8 @@ public class GenreService {
             TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Track detail not found"));
             Long likes = likeRepository.countByTrackId(track.getId());
-            return TrackResponseDto.toDto(track, trackDetail, likes);
+            Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
+            return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
         });
 
         return GenreWithTracksResponseDto.toDto(genre, trackResponseDtos);
