@@ -17,7 +17,7 @@ public class TrackDetail extends BaseTimeEntity {
     @Id
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1024)
     private String prompt;
 
     @OneToOne(fetch = FetchType.LAZY)
