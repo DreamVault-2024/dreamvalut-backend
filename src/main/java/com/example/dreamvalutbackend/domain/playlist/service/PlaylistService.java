@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dreamvalutbackend.domain.like.repository.LikeRepository;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.AddTrackToPlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.CreatePlaylistRequestDto;
 import com.example.dreamvalutbackend.domain.playlist.controller.request.UpdatePlaylistNameRequestDto;
@@ -46,6 +47,8 @@ public class PlaylistService {
     private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
     private final UserRepository userRepository;
+
+    private final LikeRepository likeRepository;
 
     @Transactional
     public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto) {
@@ -96,7 +99,7 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
-    public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable) {
+    public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable, Long userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
@@ -119,8 +122,11 @@ public class PlaylistService {
                             .orElseThrow(() -> new EntityNotFoundException(
                                     "TrackDetail not found for track id: " + track.getId()));
 
+                    Long likes = likeRepository.countByTrackId(track.getId());
+                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
+
                     // TrackResponseDto 생성
-                    return TrackResponseDto.toDto(track, trackDetail);
+                    return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
                 });
 
         return PlaylistWithTracksResponseDto.toDto(playlist, tracks);

@@ -43,11 +43,11 @@ public class CommonLoginSuccessHandler implements AuthenticationSuccessHandler {
 		tokenRepository.save(token);
 
 
-		response.addCookie(createCookie("accessToken", accessToken, JwtConstants.ACCESS_EXP_TIME, true, false));
+		response.addCookie(createCookie("accessToken", accessToken, JwtConstants.ACCESS_EXP_TIME, false, false));
 
-		response.addCookie(createCookie("refreshToken", refreshToken, JwtConstants.REFRESH_EXP_TIME, true, false));
+		response.addCookie(createCookie("refreshToken", refreshToken, JwtConstants.REFRESH_EXP_TIME, false, false));
 
-		String clientUrl = "http://localhost:3000/genre";
+		String clientUrl = "http://localhost:3000/genre_select";
 		response.sendRedirect(clientUrl);
 	}
 

@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.user.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
+import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -47,12 +49,15 @@ public class User extends BaseTimeEntity {
 
     private String socialId;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Genre> genre = new ArrayList<>();
+
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<StreamingHistory> streamingHistories = new ArrayList<>();
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // private List<Like> likes = new ArrayList<>();
+    // private List<LikeCache> likes = new ArrayList<>();
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<Playlist> playlists = new ArrayList<>();

@@ -344,7 +344,7 @@ public class PlaylistControllerUnitTest {
                 .build();
 
         // PlaylistService.getPlaylistWithTracks() 메소드 Mocking
-        given(playlistService.getPlaylistWithTracks(eq(playlistId), any(PageRequest.class)))
+        given(playlistService.getPlaylistWithTracks(eq(playlistId), any(PageRequest.class), any(long.class)))
                 .willReturn(playlistWithTracksResponseDto);
 
         /* When & Then */
