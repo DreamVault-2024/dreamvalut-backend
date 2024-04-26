@@ -7,12 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.genre.controller.response.GenreWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.genre.service.GenreService;
+import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +46,9 @@ public class GenreController {
     @GetMapping("/{genre_id}/tracks")
     @Operation(summary = "특정 장르의 모든 곡 가져오기")
     public ResponseEntity<GenreWithTracksResponseDto> getGenreWithTracks(@PathVariable("genre_id") Long genreId,
-            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(genreService.getGenreWithTracks(genreId, pageable));
+            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+        Long userId = userDetailPrincipal.getUserId();
+        return ResponseEntity.ok(genreService.getGenreWithTracks(genreId, pageable, userId));
     }
 }

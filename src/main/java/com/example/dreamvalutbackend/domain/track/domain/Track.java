@@ -62,7 +62,7 @@ public class Track extends BaseTimeEntity {
 
     // @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval =
     // true, fetch = FetchType.LAZY)
-    // private List<Like> likes = new ArrayList<>();
+    // private List<LikeCache> likes = new ArrayList<>();
 
     // @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval =
     // true, fetch = FetchType.LAZY)

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
+import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,6 +29,10 @@ public class Genre extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String genreImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     // @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<Track> tracks = new ArrayList<>();

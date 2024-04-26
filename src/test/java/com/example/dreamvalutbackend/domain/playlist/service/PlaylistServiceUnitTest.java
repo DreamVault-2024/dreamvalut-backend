@@ -191,6 +191,7 @@ public class PlaylistServiceUnitTest {
 
         // 요청할 Playlist ID
         Long playlistId = 1L;
+        Long userId = 1L;
 
         // Mock Playlist, Track, TrackDetail 객체 생성
         User user = createMockUser(1L, "testUser", "Test User", "testUser@example.com", "testUserProfileImage",
@@ -211,7 +212,7 @@ public class PlaylistServiceUnitTest {
 
         /* When */
         PlaylistWithTracksResponseDto playlistWithTracksResponseDto = playlistService.getPlaylistWithTracks(playlistId,
-                PageRequest.of(0, 30));
+                PageRequest.of(0, 30), userId);
 
         /* Then */
         assertThat(playlistWithTracksResponseDto.getPlaylistId()).isEqualTo(playlist.getId());

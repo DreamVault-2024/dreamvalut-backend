@@ -41,7 +41,7 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer :: disable)
 			.cors(cors -> cors.configurationSource(corsConfiguration()))
 			.sessionManagement(httpSecuritySessionManagementConfigurer -> {
-				httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+				httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			}) // 세션 생성 X
 			.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
 				authorizationManagerRequestMatcherRegistry.anyRequest().permitAll()) //모든 요청 인증없이 허용
