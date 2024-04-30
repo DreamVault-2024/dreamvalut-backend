@@ -75,6 +75,9 @@ dependencies {
     // Audio Processing
     implementation 'net.jthink:jaudiotagger:3.0.1'
 
+    // ElasticSearch
+    implementation 'co.elastic.clients:elasticsearch-java:8.13.2'
+
     //Querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
