@@ -14,18 +14,23 @@ public class SwaggerConfig {
 	@Bean
 	public OpenAPI openAPI() {
 		String jwt = "JWT";
-		SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
-		Components components = new Components().addSecuritySchemes(jwt, new SecurityScheme()
-			.name(jwt)
+		SecurityScheme securityScheme = new SecurityScheme()
+			.name("Authorization")
 			.type(SecurityScheme.Type.HTTP)
-			.scheme("Bearer")
-			.bearerFormat("JWT")
-		);
+			.scheme("bearer")
+			.bearerFormat("JWT");
+
+		Components components = new Components()
+			.addSecuritySchemes(jwt, securityScheme);
+
+		SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
+
 		return new OpenAPI()
-			.components(new Components())
+			.components(components)
 			.info(apiInfo())
 			.addSecurityItem(securityRequirement);
 	}
+
 	private Info apiInfo() {
 		return new Info()
 			.title("DreamVault")
