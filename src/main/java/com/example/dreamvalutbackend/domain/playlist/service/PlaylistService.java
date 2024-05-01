@@ -47,7 +47,6 @@ public class PlaylistService {
     private final TrackRepository trackRepository;
     private final TrackDetailRepository trackDetailRepository;
     private final UserRepository userRepository;
-
     private final LikeRepository likeRepository;
 
     @Transactional
@@ -64,13 +63,6 @@ public class PlaylistService {
                 .user(user)
                 .build();
         Playlist savedPlaylist = playlistRepository.save(playlist);
-
-        // MyPlaylist 생성
-        MyPlaylist myPlaylist = MyPlaylist.builder()
-                .playlist(savedPlaylist)
-                .user(user)
-                .build();
-        myPlaylistRepository.save(myPlaylist);
 
         return PlaylistResponseDto.toDto(savedPlaylist);
     }
