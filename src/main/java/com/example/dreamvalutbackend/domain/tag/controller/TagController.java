@@ -19,7 +19,6 @@ import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tags")
@@ -32,15 +31,16 @@ public class TagController {
     @Operation(summary = "모든 태그 리스트 가져오기", description = "메인페이지 태그 리스트")
     public ResponseEntity<Page<TagResponseDto>> listAllTags(
             @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+
         return ResponseEntity.ok(tagService.listAllTags(pageable));
     }
 
     @GetMapping("/{tag_id}/tracks")
     @Operation(summary = "특정 태그의 모든 곡 가져오기", description = "메인페이지 태그 별 상세 리스트")
     public ResponseEntity<TagWithTracksResponseDto> getTagWithTracks(@PathVariable("tag_id") Long tagId,
-            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
-            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Long userId = userDetailPrincipal.getUserId();
-        return ResponseEntity.ok(tagService.getTagWithTracks(tagId, pageable, userId));
+            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        return ResponseEntity.ok(tagService.getTagWithTracks(tagId, pageable, userDetailPrincipal.getUserId()));
     }
 }

@@ -38,15 +38,15 @@ public class TrackService {
 	private final GenreRepository genreRepository;
 	private final TagService tagService;
 	private final StreamingHistoryRepository streamingHistoryRepository;
+	private final LikeRepository likeRepository;
 
 	private final ImageUploader imageUploader;
 	private final AudioUploader audioUploader;
 
-	private final LikeRepository likeRepository;
-
 	@Transactional
 	public TrackUploadResponseDto uploadTrack(TrackUploadRequestDto trackUploadRequestDto,
-			MultipartFile trackImage, MultipartFile trackAudio) throws IOException {
+			MultipartFile trackImage, MultipartFile trackAudio, Long userId) throws IOException {
+
 		// 이미지와 썸네일 이미지, 오디오 파일을 S3에 업로드
 		String trackImageUrl = imageUploader.uploadTrackImage(trackImage, trackUploadRequestDto.getTitle());
 		String thumbnailImageUrl = imageUploader.uploadThumbnailImage(trackImage, trackUploadRequestDto.getTitle());
@@ -55,9 +55,11 @@ public class TrackService {
 		// 오디오 파일로부터 음악 길이 추출
 		int duration = AudioDataParser.extractDurationInSeconds(trackAudio);
 
-		// User와 Genre 가져오기 - 유저 정보는 임시로 1L로 설정
-		User user = userRepository.findById(1L)
-				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+		// ID로 User 가져오가
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+		// ID로 Genre 가져오기
 		Genre genre = genreRepository.findById(trackUploadRequestDto.getGenreId()).orElseThrow(
 				() -> new EntityNotFoundException("Genre not found with id: " + trackUploadRequestDto.getGenreId()));
 
@@ -87,14 +89,16 @@ public class TrackService {
 		return TrackUploadResponseDto.toDto(savedTrack);
 	}
 
-    @Transactional(readOnly = true)
-	public TrackResponseDto getTrack(Long userId, Long trackId) {
-		// Track과 TrackDetail 가져오기
+	@Transactional(readOnly = true)
+	public TrackResponseDto getTrack(Long trackId, Long userId) {
+
+		// ID로 Track과 TrackDetail 가져오기
 		Track track = trackRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
 		TrackDetail trackDetail = trackDetailRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("TrackDetail not found with trackId: " + trackId));
 
+		// Track의 좋아요 수와 좋아요 여부 가져오기
 		Long likes = likeRepository.countByTrackId(trackId);
 		Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, trackId);
 
@@ -103,10 +107,13 @@ public class TrackService {
 	}
 
 	@Transactional
-	public void recordStreamEvent(Long trackId) {
-		// User와 Track 가져오기 - 유저 정보는 임시로 1L로 설정
-		User user = userRepository.findById(1L)
-				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+	public void recordStreamEvent(Long trackId, Long userId) {
+
+		// ID로 User 가져오기
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+		// ID로 Track 가져오기
 		Track track = trackRepository.findById(trackId)
 				.orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
 

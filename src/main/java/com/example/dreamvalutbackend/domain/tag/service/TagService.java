@@ -32,11 +32,13 @@ public class TagService {
 
     @Transactional(readOnly = true)
     public Page<TagResponseDto> listAllTags(Pageable pageable) {
+
         return tagRepository.findAll(pageable).map(TagResponseDto::toDto);
     }
 
     @Transactional(readOnly = true)
     public TagWithTracksResponseDto getTagWithTracks(Long tagId, Pageable pageable, Long userId) {
+
         // tagId로 해당하는 태그 가져오기
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
@@ -58,6 +60,8 @@ public class TagService {
 
     @Transactional
     public void associateTrackWithTags(Track track, String[] tagNames) {
+
+        // TODO: 이미지를 Bedrock으로 생성해서 저장하도록 로직 변경
         // 태그들을 순회하며 태그를 찾아서 없으면 생성하고, TrackTag를 생성하여 저장
         Arrays.stream(tagNames).forEach(tagName -> {
             Tag tag = tagRepository.findByTagName(tagName)
