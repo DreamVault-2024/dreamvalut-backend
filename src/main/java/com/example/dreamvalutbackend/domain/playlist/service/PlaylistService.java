@@ -100,11 +100,12 @@ public class PlaylistService {
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // Playlist이 비공개이고 로그인한 유저와 Playlist의 유저가 다르면 예외 발생
-        User playlistOwner = playlist.getUser();
-        if (!playlist.getIsPublic() && !playlistOwner.getUserId().equals(userId)) {
+        Boolean isOwner = playlist.getUser().getUserId().equals(userId);
+        if (!playlist.getIsPublic() && !isOwner) {
             throw new SecurityException("User not authorized to view this playlist");
         }
 
+        // Playlist에 해당하는 Track들 가져오기
         Page<TrackResponseDto> tracks = playlistTrackRepository.findAllByPlaylistId(playlistId, pageable)
                 .map(playlistTrack -> {
                     // Track 가져오기
@@ -122,7 +123,8 @@ public class PlaylistService {
                     return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
                 });
 
-        return PlaylistWithTracksResponseDto.toDto(playlist, tracks);
+
+        return PlaylistWithTracksResponseDto.toDto(playlist, tracks, isOwner);
     }
 
     @Transactional
