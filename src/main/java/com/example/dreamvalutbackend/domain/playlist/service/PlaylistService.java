@@ -124,14 +124,17 @@ public class PlaylistService {
     @Transactional
     public PlaylistResponseDto updatePlaylistName(Long playlistId,
             UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto, Long userId) {
+        // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
+        // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
         if (!playlistOwner.getUserId().equals(userId)) {
             throw new SecurityException("User not authorized to update this playlist");
         }
 
+        // Playlist 이름 업데이트
         playlist.updatePlaylistName(updatePlaylistNameRequestDto.getPlaylistName());
 
         return PlaylistResponseDto.toDto(playlist);
@@ -143,6 +146,7 @@ public class PlaylistService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
+        // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
         if (!playlistOwner.getUserId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
@@ -162,6 +166,7 @@ public class PlaylistService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
+        // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
         if (!playlistOwner.getUserId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
@@ -191,6 +196,7 @@ public class PlaylistService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
+        // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
         if (!playlistOwner.getUserId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
@@ -211,6 +217,7 @@ public class PlaylistService {
 
     @Transactional
     public void followPlaylist(Long playlistId, Long userId) {
+        // ID로 User 찾기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -233,6 +240,7 @@ public class PlaylistService {
 
     @Transactional
     public void unfollowPlaylist(Long playlistId, Long userId) {
+        // ID로 User 찾기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
