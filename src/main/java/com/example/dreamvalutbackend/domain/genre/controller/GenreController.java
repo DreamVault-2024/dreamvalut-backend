@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/genres")
@@ -48,7 +47,6 @@ public class GenreController {
     public ResponseEntity<GenreWithTracksResponseDto> getGenreWithTracks(@PathVariable("genre_id") Long genreId,
             @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
-        Long userId = userDetailPrincipal.getUserId();
-        return ResponseEntity.ok(genreService.getGenreWithTracks(genreId, pageable, userId));
+        return ResponseEntity.ok(genreService.getGenreWithTracks(genreId, pageable, userDetailPrincipal.getUserId()));
     }
 }
