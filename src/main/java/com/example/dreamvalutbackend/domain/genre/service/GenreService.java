@@ -36,6 +36,7 @@ public class GenreService {
 
     @Transactional(readOnly = true)
     public Page<GenreWithTracksOverviewResponseDto> getGenresWithTracksOverview(Pageable pageable) {
+
         // 장르들 가져오기
         Page<Genre> genres = genreRepository.findAll(pageable);
 
@@ -56,6 +57,7 @@ public class GenreService {
 
     @Transactional(readOnly = true)
     public List<GenreResponseDto> listAllGenres() {
+
         return genreRepository.findAll().stream()
                 .map(genre -> GenreResponseDto.toDto(genre))
                 .collect(Collectors.toList());
@@ -63,6 +65,7 @@ public class GenreService {
 
     @Transactional(readOnly = true)
     public GenreWithTracksResponseDto getGenreWithTracks(Long genreId, Pageable pageable, Long userId) {
+
         // genreId로 해당하는 장르 가져오기
         Genre genre = genreRepository.findById(genreId)
                 .orElseThrow(() -> new IllegalArgumentException("Genre not found"));
