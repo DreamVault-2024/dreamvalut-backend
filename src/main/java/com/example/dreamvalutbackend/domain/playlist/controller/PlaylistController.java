@@ -32,7 +32,6 @@ import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/playlists")
@@ -43,8 +42,11 @@ public class PlaylistController {
     @PostMapping
     @Operation(summary = "새 플레이리스트 생성")
     public ResponseEntity<PlaylistResponseDto> createPlaylist(
-            @RequestBody CreatePlaylistRequestDto createPlaylistRequestDto) {
-        PlaylistResponseDto createPlaylistResponseDto = playlistService.createPlaylist(createPlaylistRequestDto);
+            @RequestBody CreatePlaylistRequestDto createPlaylistRequestDto,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        PlaylistResponseDto createPlaylistResponseDto = playlistService.createPlaylist(createPlaylistRequestDto,
+                userDetailPrincipal.getUserId());
 
         // HTTP 201 Created 상태 코드와 함께 생성된 리소스의 URI를 반환
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -60,6 +62,7 @@ public class PlaylistController {
     public ResponseEntity<Page<PlaylistWithTracksOverviewResponseDto>> getPlaylistsWithTracksOverview(
             @ValidPlaylistType @RequestParam("type") String type,
             @PageableDefault(page = 0, size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
         return ResponseEntity.ok(playlistService.getPlaylistsWithTracksOverview(type, pageable));
     }
 
@@ -69,50 +72,64 @@ public class PlaylistController {
             @PathVariable("playlist_id") Long playlistId,
             @PageableDefault(page = 0, size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
-        Long userId = userDetailPrincipal.getUserId();
-        return ResponseEntity.ok(playlistService.getPlaylistWithTracks(playlistId, pageable, userId));
+
+        return ResponseEntity
+                .ok(playlistService.getPlaylistWithTracks(playlistId, pageable, userDetailPrincipal.getUserId()));
     }
 
     @PatchMapping("/{playlist_id}")
     @Operation(summary = "특정 플레이리스트 이름 수정하기")
     public ResponseEntity<PlaylistResponseDto> updatePlaylistName(
             @PathVariable("playlist_id") Long playlistId,
-            @RequestBody UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
-        return ResponseEntity.ok(playlistService.updatePlaylistName(playlistId, updatePlaylistNameRequestDto));
+            @RequestBody UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        return ResponseEntity.ok(playlistService.updatePlaylistName(playlistId, updatePlaylistNameRequestDto,
+                userDetailPrincipal.getUserId()));
     }
 
     @DeleteMapping("/{playlist_id}")
     @Operation(summary = "특정 플레이리스트 삭제하기")
-    public ResponseEntity<Void> deletePlaylist(@PathVariable("playlist_id") Long playlistId) {
-        playlistService.deletePlaylist(playlistId);
+    public ResponseEntity<Void> deletePlaylist(@PathVariable("playlist_id") Long playlistId,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        playlistService.deletePlaylist(playlistId, userDetailPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{playlist_id}/tracks")
     @Operation(summary = "특정 플레이리스트에 곡 추가하기")
     public ResponseEntity<Void> addTrackToPlaylist(@PathVariable("playlist_id") Long playlistId,
-            @RequestBody AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
-        playlistService.addTrackToPlaylist(playlistId, addTrackToPlaylistRequestDto);
+            @RequestBody AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        playlistService.addTrackToPlaylist(playlistId, addTrackToPlaylistRequestDto, userDetailPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{playlist_id}/tracks/{track_id}")
     @Operation(summary = "특정 플레이리스트의 곡 삭제하기")
     public ResponseEntity<Void> deleteTrackFromPlaylist(@PathVariable("playlist_id") Long playlistId,
-            @PathVariable("track_id") Long trackId) {
-        playlistService.deleteTrackFromPlaylist(playlistId, trackId);
+            @PathVariable("track_id") Long trackId,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        playlistService.deleteTrackFromPlaylist(playlistId, trackId, userDetailPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{playlist_id}/follow")
-    public ResponseEntity<Void> followPlaylist(@PathVariable("playlist_id") Long playlistId) {
-        playlistService.followPlaylist(playlistId);
+    public ResponseEntity<Void> followPlaylist(@PathVariable("playlist_id") Long playlistId,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        playlistService.followPlaylist(playlistId, userDetailPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{playlist_id}/follow")
-    public ResponseEntity<Void> unfollowPlaylist(@PathVariable("playlist_id") Long playlistId) {
-        playlistService.unfollowPlaylist(playlistId);
+    public ResponseEntity<Void> unfollowPlaylist(@PathVariable("playlist_id") Long playlistId,
+            @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+        playlistService.unfollowPlaylist(playlistId, userDetailPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

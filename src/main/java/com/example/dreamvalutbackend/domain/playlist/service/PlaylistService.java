@@ -50,10 +50,10 @@ public class PlaylistService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto) {
+    public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto, Long userId) {
         // 유저 가져오기
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         // Playlist 생성
         Playlist playlist = Playlist.builder()
@@ -95,12 +95,9 @@ public class PlaylistService {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
-        // TODO: 로그인한 유저 정보 가져오기
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
-
         // Playlist이 비공개이고 로그인한 유저와 Playlist의 유저가 다르면 예외 발생
-        if (!playlist.getIsPublic() && !playlist.getUser().equals(user)) {
+        User playlistOwner = playlist.getUser();
+        if (!playlist.getIsPublic() && !playlistOwner.getUserId().equals(userId)) {
             throw new SecurityException("User not authorized to view this playlist");
         }
 
@@ -126,15 +123,14 @@ public class PlaylistService {
 
     @Transactional
     public PlaylistResponseDto updatePlaylistName(Long playlistId,
-            UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
+            UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto, Long userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
-        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
-        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
-        // if (!playlist.getUser().getUserName().equals("temp")) {
-        // throw new SecurityException("User not authorized to update this playlist");
-        // }
+        User playlistOwner = playlist.getUser();
+        if (!playlistOwner.getUserId().equals(userId)) {
+            throw new SecurityException("User not authorized to update this playlist");
+        }
 
         playlist.updatePlaylistName(updatePlaylistNameRequestDto.getPlaylistName());
 
@@ -142,38 +138,34 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void deletePlaylist(Long playlistId) {
+    public void deletePlaylist(Long playlistId, Long userId) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
-        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
-        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
-        // if (!playlist.getUser().getUserName().equals("temp")) {
-        // throw new SecurityException("User not authorized to delete this playlist");
-        // }
+        User playlistOwner = playlist.getUser();
+        if (!playlistOwner.getUserId().equals(userId)) {
+            throw new SecurityException("User not authorized to delete this playlist");
+        }
 
         // 찾은 Playlist와 연관된 PlaylistTrack 삭제
         playlistTrackRepository.deleteByPlaylist(playlist);
-
-        // 찾은 Playlist와 연관된 MyPlaylist 삭제
-        myPlaylistRepository.deleteByPlaylist(playlist);
 
         // 찾은 Playlist 삭제
         playlistRepository.delete(playlist);
     }
 
     @Transactional
-    public void addTrackToPlaylist(Long playlistId, AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
+    public void addTrackToPlaylist(Long playlistId,
+            AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto, Long userId) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
-        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
-        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
-        // if (!playlist.getUser().getUserName().equals("temp")) {
-        // throw new SecurityException("User not authorized to delete this playlist");
-        // }
+        User playlistOwner = playlist.getUser();
+        if (!playlistOwner.getUserId().equals(userId)) {
+            throw new SecurityException("User not authorized to delete this playlist");
+        }
 
         // ID로 Track 찾기
         Track track = trackRepository.findById(addTrackToPlaylistRequestDto.getTrackId())
@@ -194,16 +186,15 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void deleteTrackFromPlaylist(Long playlistId, Long trackId) {
+    public void deleteTrackFromPlaylist(Long playlistId, Long trackId, Long userId) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
-        // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
-        // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
-        // if (!playlist.getUser().getUserName().equals("temp")) {
-        // throw new SecurityException("User not authorized to delete this playlist");
-        // }
+        User playlistOwner = playlist.getUser();
+        if (!playlistOwner.getUserId().equals(userId)) {
+            throw new SecurityException("User not authorized to delete this playlist");
+        }
 
         // ID로 Track 찾기
         Track track = trackRepository.findById(trackId)
@@ -219,10 +210,9 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void followPlaylist(Long playlistId) {
-        // TODO: 로그인한 유저 정보 가져오기
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+    public void followPlaylist(Long playlistId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
@@ -242,10 +232,9 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void unfollowPlaylist(Long playlistId) {
-        // TODO: 로그인한 유저 정보 가져오기
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+    public void unfollowPlaylist(Long playlistId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
