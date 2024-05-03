@@ -35,6 +35,7 @@ public class SearchService {
 
     public CustomPage<SearchTrackResponseDto> searchTrack(String query, Pageable pageable, Long userId)
             throws IOException {
+
         // userId로 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));

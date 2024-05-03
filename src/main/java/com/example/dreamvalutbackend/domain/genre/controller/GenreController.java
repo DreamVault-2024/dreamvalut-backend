@@ -33,12 +33,14 @@ public class GenreController {
     @Operation(summary = "장르별 곡 3개씩 가져오기")
     public ResponseEntity<Page<GenreWithTracksOverviewResponseDto>> getGenresWithTracksOverview(
             @PageableDefault(page = 0, size = 4, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+
         return ResponseEntity.ok(genreService.getGenresWithTracksOverview(pageable));
     }
 
     @GetMapping("/list")
     @Operation(summary = "모든 장르 리스트 가져오기")
     public ResponseEntity<List<GenreResponseDto>> listAllGenres() {
+
         return ResponseEntity.ok(genreService.listAllGenres());
     }
 
@@ -47,6 +49,7 @@ public class GenreController {
     public ResponseEntity<GenreWithTracksResponseDto> getGenreWithTracks(@PathVariable("genre_id") Long genreId,
             @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
         return ResponseEntity.ok(genreService.getGenreWithTracks(genreId, pageable, userDetailPrincipal.getUserId()));
     }
 }

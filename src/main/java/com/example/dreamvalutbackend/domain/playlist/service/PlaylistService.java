@@ -51,6 +51,7 @@ public class PlaylistService {
 
     @Transactional
     public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto, Long userId) {
+
         // 유저 가져오기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -69,6 +70,7 @@ public class PlaylistService {
 
     @Transactional(readOnly = true)
     public Page<PlaylistWithTracksOverviewResponseDto> getPlaylistsWithTracksOverview(String type, Pageable pageable) {
+
         // type에 따라서 가져올 Query Function 명시
         Map<String, Function<Pageable, Page<Playlist>>> typeToQueryFunction = Map.of(
                 "curated", playlistRepository::findByIsCuratedTrue,
@@ -92,6 +94,8 @@ public class PlaylistService {
 
     @Transactional(readOnly = true)
     public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable, Long userId) {
+
+        // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
@@ -124,6 +128,7 @@ public class PlaylistService {
     @Transactional
     public PlaylistResponseDto updatePlaylistName(Long playlistId,
             UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto, Long userId) {
+
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
@@ -142,6 +147,7 @@ public class PlaylistService {
 
     @Transactional
     public void deletePlaylist(Long playlistId, Long userId) {
+
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
@@ -162,6 +168,7 @@ public class PlaylistService {
     @Transactional
     public void addTrackToPlaylist(Long playlistId,
             AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto, Long userId) {
+
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
@@ -192,6 +199,7 @@ public class PlaylistService {
 
     @Transactional
     public void deleteTrackFromPlaylist(Long playlistId, Long trackId, Long userId) {
+
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
@@ -217,6 +225,7 @@ public class PlaylistService {
 
     @Transactional
     public void followPlaylist(Long playlistId, Long userId) {
+
         // ID로 User 찾기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
@@ -240,6 +249,7 @@ public class PlaylistService {
 
     @Transactional
     public void unfollowPlaylist(Long playlistId, Long userId) {
+
         // ID로 User 찾기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
