@@ -21,7 +21,7 @@ import java.util.Map;
 
 @Slf4j
 public class JwtVerifyFilter extends OncePerRequestFilter {
-	private static final String[] whitelist = {"/signUp", "/login" , "/refresh", "/tracks/**", "/playlists/**", "/tags/**", "/genres/**", "/search"};
+	private static final String[] whitelist = {"/signUp", "/login" , "/refresh", "/tracks/**", "/playlists/**", "/tags/**", "/genres/**", "/users/**", "/users","/search"};
 
 	private static void checkAuthorizationHeader(String header) {
 		if(header == null) {
@@ -57,8 +57,10 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
 			String json = "";
 			if (e instanceof CustomExpiredJwtException) {
 				json = gson.toJson(Map.of("Token_Expired", e.getMessage()));
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			} else {
 				json = gson.toJson(Map.of("error", e.getMessage()));
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 
 			response.setContentType("application/json; charset=UTF-8");
