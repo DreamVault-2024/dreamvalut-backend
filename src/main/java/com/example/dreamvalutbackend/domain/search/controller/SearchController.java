@@ -30,6 +30,7 @@ public class SearchController {
             @RequestParam(value = "query", required = true) String query,
             @PageableDefault(page = 0, size = 10) Pageable pageable,
             @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) throws IOException {
+
         return ResponseEntity.ok(searchService.searchTrack(query, pageable, userDetailPrincipal.getUserId()));
     }
 }

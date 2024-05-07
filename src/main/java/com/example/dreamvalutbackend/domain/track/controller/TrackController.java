@@ -24,9 +24,6 @@ import com.example.dreamvalutbackend.domain.track.validation.annotation.ValidTra
 import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,11 +41,12 @@ public class TrackController {
 	public ResponseEntity<TrackUploadResponseDto> uploadTrack(
 			@Valid @RequestPart("track_info") TrackUploadRequestDto trackUploadRequestDto,
 			@ValidTrackImage @RequestPart("track_image") MultipartFile trackImage,
-			@ValidTrackAudio @RequestPart("track_audio") MultipartFile trackAudio) throws IOException {
+			@ValidTrackAudio @RequestPart("track_audio") MultipartFile trackAudio,
+			@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) throws IOException {
 
 		// TrackService를 통해 Track 엔티티를 생성하고 저장
 		TrackUploadResponseDto trackUploadResponseDto = trackService.uploadTrack(trackUploadRequestDto, trackImage,
-				trackAudio);
+				trackAudio, userDetailPrincipal.getUserId());
 
 		// HTTP 201 Created 상태 코드와 함께 생성된 리소스의 URI를 반환
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -62,16 +60,18 @@ public class TrackController {
 
 	@GetMapping("/{track_id}")
 	@Operation(summary = "특정 곡 정보 가져오기", description = "특정 곡의 음악 상세정보 가져오기 및 스트리밍하기")
-	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId, @AuthenticationPrincipal
-		UserDetailPrincipal userDetailPrincipal) {
-		Long userId = userDetailPrincipal.getUserId();
-		return ResponseEntity.ok(trackService.getTrack(userId, trackId));
+	public ResponseEntity<TrackResponseDto> getTrack(@PathVariable("track_id") Long trackId,
+			@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+		return ResponseEntity.ok(trackService.getTrack(trackId, userDetailPrincipal.getUserId()));
 	}
 
 	@PostMapping("/{track_id}/stream_events")
 	@Operation(summary = "특정 곡 재생 이벤트 기록하기", description = "곡 재생시, 해당 재생 시간 기록하기")
-	public ResponseEntity<Void> recordStreamEvent(@PathVariable("track_id") Long trackId) {
-		trackService.recordStreamEvent(trackId);
+	public ResponseEntity<Void> recordStreamEvent(@PathVariable("track_id") Long trackId,
+			@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
+
+		trackService.recordStreamEvent(trackId, userDetailPrincipal.getUserId());
 		return ResponseEntity.ok().build();
 	}
 

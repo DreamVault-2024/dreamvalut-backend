@@ -21,10 +21,12 @@ import java.util.Map;
 
 @Slf4j
 public class JwtVerifyFilter extends OncePerRequestFilter {
-	private static final String[] whitelist = {"/signUp", "/login" , "/refresh", "/tracks/**", "/playlists/**", "/tags/**", "/genres/**", "/users/**", "/users","/search"};
+
+	private static final String[] whitelist = { "/signUp", "/login", "/refresh", "/tracks", "/tracks/**", "/playlists",
+			"/playlists/**", "/tags", "/tags/**", "/genres", "/genres/**", "/search" };
 
 	private static void checkAuthorizationHeader(String header) {
-		if(header == null) {
+		if (header == null) {
 			throw new CustomJwtException("토큰이 전달되지 않았습니다");
 		} else if (!header.startsWith(JwtConstants.JWT_TYPE)) {
 			throw new CustomJwtException("BEARER 로 시작하지 않는 올바르지 않은 토큰 형식입니다");
@@ -39,19 +41,19 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
 		String authHeader = request.getHeader(JwtConstants.JWT_HEADER);
 
 		try {
-			checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
+			checkAuthorizationHeader(authHeader); // header 가 올바른 형식인지 체크
 			String token = JwtUtils.getTokenFromHeader(authHeader);
 			Authentication authentication = JwtUtils.getAuthentication(token);
 
-
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			filterChain.doFilter(request, response);    // 다음 필터로 이동
+			filterChain.doFilter(request, response); // 다음 필터로 이동
 		} catch (Exception e) {
 			Gson gson = new Gson();
 			String json = "";
