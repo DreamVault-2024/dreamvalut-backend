@@ -27,6 +27,7 @@ import com.example.dreamvalutbackend.domain.playlist.controller.response.Playlis
 import com.example.dreamvalutbackend.domain.playlist.controller.response.PlaylistWithTracksResponseDto;
 import com.example.dreamvalutbackend.domain.playlist.service.PlaylistService;
 import com.example.dreamvalutbackend.domain.playlist.validation.annotation.ValidPlaylistType;
+import com.example.dreamvalutbackend.domain.track.controller.response.UserCreateTrackResponseDto;
 import com.example.dreamvalutbackend.domain.user.domain.UserDetailPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -114,5 +115,38 @@ public class PlaylistController {
     public ResponseEntity<Void> unfollowPlaylist(@PathVariable("playlist_id") Long playlistId) {
         playlistService.unfollowPlaylist(playlistId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/users/playlists/created")
+    public ResponseEntity<Page<UserCreateTrackResponseDto>> getUserCreatedPlaylists(
+        @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
+        @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Long userId = userDetailPrincipal.getUserId();
+        Page<UserCreateTrackResponseDto> userPlaylists = playlistService.findUserCreateTrack(userId, pageable);
+
+        return ResponseEntity.ok(userPlaylists);
+    }
+
+    @GetMapping("/users/playlists/followed")
+    public ResponseEntity<Page<UserCreateTrackResponseDto>> getFollowedUserPlaylists(
+        @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
+        @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Long userId = userDetailPrincipal.getUserId();
+        Page<UserCreateTrackResponseDto> followedPlaylists = playlistService.findFollowedUserTrack(userId, pageable);
+
+        return ResponseEntity.ok(followedPlaylists);
+    }
+
+    @GetMapping("/users/playlists/list")
+    public ResponseEntity<Page<PlaylistResponseDto>> getUserPlaylists(
+        @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
+        @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Long userId = userDetailPrincipal.getUserId();
+        Page<PlaylistResponseDto> playlists = playlistService.findUserPlaylist(userId, pageable);
+
+        return ResponseEntity.ok(playlists);
     }
 }

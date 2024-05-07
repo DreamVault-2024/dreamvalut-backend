@@ -27,12 +27,14 @@ import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistReposito
 import com.example.dreamvalutbackend.domain.playlist.repository.PlaylistTrackRepository;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.UserCreateTrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 import com.example.dreamvalutbackend.domain.track.repository.TrackDetailRepository;
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
+import java.util.stream.Stream;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -53,15 +55,15 @@ public class PlaylistService {
     public PlaylistResponseDto createPlaylist(CreatePlaylistRequestDto createPlaylistRequestDto) {
         // 유저 가져오기
         User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
 
         // Playlist 생성
         Playlist playlist = Playlist.builder()
-                .playlistName(createPlaylistRequestDto.getPlaylistName())
-                .isPublic(createPlaylistRequestDto.getIsPublic())
-                .isCurated(false)
-                .user(user)
-                .build();
+            .playlistName(createPlaylistRequestDto.getPlaylistName())
+            .isPublic(createPlaylistRequestDto.getIsPublic())
+            .isCurated(false)
+            .user(user)
+            .build();
         Playlist savedPlaylist = playlistRepository.save(playlist);
 
         return PlaylistResponseDto.toDto(savedPlaylist);
@@ -71,8 +73,8 @@ public class PlaylistService {
     public Page<PlaylistWithTracksOverviewResponseDto> getPlaylistsWithTracksOverview(String type, Pageable pageable) {
         // type에 따라서 가져올 Query Function 명시
         Map<String, Function<Pageable, Page<Playlist>>> typeToQueryFunction = Map.of(
-                "curated", playlistRepository::findByIsCuratedTrue,
-                "user_created", playlistRepository::findByIsCuratedFalseAndIsPublicTrue);
+            "curated", playlistRepository::findByIsCuratedTrue,
+            "user_created", playlistRepository::findByIsCuratedFalseAndIsPublicTrue);
 
         // Playlist 가져오기
         Page<Playlist> playlistPage = typeToQueryFunction.get(type).apply(pageable);
@@ -81,11 +83,11 @@ public class PlaylistService {
         return playlistPage.map(playlist -> {
             // Playlist에 해당하는 Track 가져오기
             List<TrackOverviewResponseDto> tracks = playlistTrackRepository
-                    .findAllByPlaylistId(playlist.getId(), PageRequest.of(0, 3, Sort.by("createdAt").descending()))
-                    .stream()
-                    .map(PlaylistTrack::getTrack)
-                    .map(TrackOverviewResponseDto::toDto)
-                    .collect(Collectors.toList());
+                .findAllByPlaylistId(playlist.getId(), PageRequest.of(0, 3, Sort.by("createdAt").descending()))
+                .stream()
+                .map(PlaylistTrack::getTrack)
+                .map(TrackOverviewResponseDto::toDto)
+                .collect(Collectors.toList());
             return PlaylistWithTracksOverviewResponseDto.toDto(playlist, tracks);
         });
     }
@@ -93,11 +95,11 @@ public class PlaylistService {
     @Transactional(readOnly = true)
     public PlaylistWithTracksResponseDto getPlaylistWithTracks(Long playlistId, Pageable pageable, Long userId) {
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // TODO: 로그인한 유저 정보 가져오기
         User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
 
         // Playlist이 비공개이고 로그인한 유저와 Playlist의 유저가 다르면 예외 발생
         if (!playlist.getIsPublic() && !playlist.getUser().equals(user)) {
@@ -105,30 +107,30 @@ public class PlaylistService {
         }
 
         Page<TrackResponseDto> tracks = playlistTrackRepository.findAllByPlaylistId(playlistId, pageable)
-                .map(playlistTrack -> {
-                    // Track 가져오기
-                    Track track = playlistTrack.getTrack();
+            .map(playlistTrack -> {
+                // Track 가져오기
+                Track track = playlistTrack.getTrack();
 
-                    // TrackDetail 가져오기
-                    TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
-                            .orElseThrow(() -> new EntityNotFoundException(
-                                    "TrackDetail not found for track id: " + track.getId()));
+                // TrackDetail 가져오기
+                TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                        "TrackDetail not found for track id: " + track.getId()));
 
-                    Long likes = likeRepository.countByTrackId(track.getId());
-                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
+                Long likes = likeRepository.countByTrackId(track.getId());
+                Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
 
-                    // TrackResponseDto 생성
-                    return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
-                });
+                // TrackResponseDto 생성
+                return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
+            });
 
         return PlaylistWithTracksResponseDto.toDto(playlist, tracks);
     }
 
     @Transactional
     public PlaylistResponseDto updatePlaylistName(Long playlistId,
-            UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
+        UpdatePlaylistNameRequestDto updatePlaylistNameRequestDto) {
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
         // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
@@ -145,7 +147,7 @@ public class PlaylistService {
     public void deletePlaylist(Long playlistId) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
         // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
@@ -167,7 +169,7 @@ public class PlaylistService {
     public void addTrackToPlaylist(Long playlistId, AddTrackToPlaylistRequestDto addTrackToPlaylistRequestDto) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
         // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
@@ -177,8 +179,8 @@ public class PlaylistService {
 
         // ID로 Track 찾기
         Track track = trackRepository.findById(addTrackToPlaylistRequestDto.getTrackId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Track not found with id: " + addTrackToPlaylistRequestDto.getTrackId()));
+            .orElseThrow(() -> new EntityNotFoundException(
+                "Track not found with id: " + addTrackToPlaylistRequestDto.getTrackId()));
 
         // 이미 Playlist에 추가된 Track인지 확인
         if (playlistTrackRepository.existsByPlaylistAndTrack(playlist, track)) {
@@ -187,9 +189,9 @@ public class PlaylistService {
 
         // PlaylistTrack 생성
         PlaylistTrack playlistTrack = PlaylistTrack.builder()
-                .playlist(playlist)
-                .track(track)
-                .build();
+            .playlist(playlist)
+            .track(track)
+            .build();
         playlistTrackRepository.save(playlistTrack);
     }
 
@@ -197,7 +199,7 @@ public class PlaylistService {
     public void deleteTrackFromPlaylist(Long playlistId, Long trackId) {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // TODO: 로그인한 유저와 Playlist의 유저가 같은지 확인
         // 어떤 필드로 검증 할 것인지는 JWT 토큰에 담긴 정보에 따라서 결정
@@ -207,12 +209,12 @@ public class PlaylistService {
 
         // ID로 Track 찾기
         Track track = trackRepository.findById(trackId)
-                .orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
+            .orElseThrow(() -> new EntityNotFoundException("Track not found with id: " + trackId));
 
         // PlaylistTrack 찾기
         PlaylistTrack playlistTrack = playlistTrackRepository.findByPlaylistAndTrack(playlist, track)
-                .orElseThrow(() -> new EntityNotFoundException("PlaylistTrack not found with playlist id: " + playlistId
-                        + " and track id: " + trackId));
+            .orElseThrow(() -> new EntityNotFoundException("PlaylistTrack not found with playlist id: " + playlistId
+                + " and track id: " + trackId));
 
         // PlaylistTrack 삭제
         playlistTrackRepository.delete(playlistTrack);
@@ -222,11 +224,11 @@ public class PlaylistService {
     public void followPlaylist(Long playlistId) {
         // TODO: 로그인한 유저 정보 가져오기
         User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
 
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // 이미 Playlist을 팔로우 중인지 확인
         if (myPlaylistRepository.existsByUserAndPlaylist(user, playlist)) {
@@ -235,9 +237,9 @@ public class PlaylistService {
 
         // MyPlaylist 생성
         MyPlaylist myPlaylist = MyPlaylist.builder()
-                .playlist(playlist)
-                .user(user)
-                .build();
+            .playlist(playlist)
+            .user(user)
+            .build();
         myPlaylistRepository.save(myPlaylist);
     }
 
@@ -245,17 +247,51 @@ public class PlaylistService {
     public void unfollowPlaylist(Long playlistId) {
         // TODO: 로그인한 유저 정보 가져오기
         User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + 1L));
 
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+            .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
 
         // MyPlaylist 찾기 (팔로우 중인지 확인)
         MyPlaylist myPlaylist = myPlaylistRepository.findByUserAndPlaylist(user, playlist)
-                .orElseThrow(() -> new EntityNotFoundException("User is not following this playlist"));
+            .orElseThrow(() -> new EntityNotFoundException("User is not following this playlist"));
 
         // MyPlaylist 삭제
         myPlaylistRepository.delete(myPlaylist);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserCreateTrackResponseDto> findUserCreateTrack(Long userId, Pageable pageable) {
+        Page<Playlist> playlists = playlistRepository.findAllByUser_UserId(userId, pageable);
+
+        return playlists.map(playlist -> {
+            List<String> thumbnails = playlistTrackRepository.findByPlaylist(playlist).stream()
+                .map(PlaylistTrack::getTrack)
+                .limit(3)
+                .map(Track::getThumbnailImage)
+                .collect(Collectors.toList());
+            return UserCreateTrackResponseDto.toDto(playlist, thumbnails);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserCreateTrackResponseDto> findFollowedUserTrack(Long userId, Pageable pageable) {
+        Page<MyPlaylist> myPlaylists = myPlaylistRepository.findAllByUser_UserId(userId, pageable);
+
+        return myPlaylists.map(myPlaylist -> {
+            List<String> thumbnails = playlistTrackRepository.findByPlaylist(myPlaylist.getPlaylist()).stream()
+                .map(PlaylistTrack::getTrack)
+                .limit(3)
+                .map(Track::getThumbnailImage)
+                .collect(Collectors.toList());
+            return UserCreateTrackResponseDto.toDto(myPlaylist.getPlaylist(), thumbnails);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PlaylistResponseDto> findUserPlaylist(Long userId, Pageable pageable) {
+        Page<Playlist> createdPlaylists = playlistRepository.findAllByUser_UserId(userId, pageable);
+        return createdPlaylists.map(playlist -> PlaylistResponseDto.toDto(playlist));
     }
 }
