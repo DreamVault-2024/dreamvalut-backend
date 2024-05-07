@@ -3,6 +3,9 @@ package com.example.dreamvalutbackend.domain.track.controller;
 import java.io.IOException;
 import java.net.URI;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,5 +73,15 @@ public class TrackController {
 	public ResponseEntity<Void> recordStreamEvent(@PathVariable("track_id") Long trackId) {
 		trackService.recordStreamEvent(trackId);
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/users/played/tracks")
+	public ResponseEntity<Page<TrackResponseDto>> getRecentTracks(
+		@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
+		@PageableDefault(size = 12, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+
+		Long userId = userDetailPrincipal.getUserId();
+		Page<TrackResponseDto> recentTracks = trackService.getUserResentTrack(userId, pageable);
+		return ResponseEntity.ok(recentTracks);
 	}
 }
