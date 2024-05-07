@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,12 +26,12 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CommonLoginSuccessHandler implements AuthenticationSuccessHandler {
+public class CommonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final TokenRepository tokenRepository;
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
 		UserDetailPrincipal principal = (UserDetailPrincipal) authentication.getPrincipal();
 
@@ -42,23 +44,28 @@ public class CommonLoginSuccessHandler implements AuthenticationSuccessHandler {
 		Token token = new Token(refreshToken, userId);
 		tokenRepository.save(token);
 
+		String targetUrl = determineTargetUrl(request, response, accessToken, refreshToken);
 
-		response.addCookie(createCookie("accessToken", accessToken, JwtConstants.ACCESS_EXP_TIME, false, false));
+		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 
-		response.addCookie(createCookie("refreshToken", refreshToken, JwtConstants.REFRESH_EXP_TIME, false, false));
-
-		String clientUrl = "http://localhost:3000/genre_select";
-		response.sendRedirect(clientUrl);
 	}
 
-	private Cookie createCookie(String name, String value, int maxAge, boolean httpOnly, boolean secure) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setMaxAge(maxAge);
-		cookie.setHttpOnly(httpOnly);
-		// cookie.setSecure(secure);
-		cookie.setPath("/");
-		return cookie;
+	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, String accessToken, String refreshToken) {
+		String redirectUri = request.getParameter("redirect_uri");
+		// if (redirectUri == null) {
+		// 	redirectUri = getDefaultTargetUrl();
+		// }
+
+		if (redirectUri == null) {
+			redirectUri = "http://localhost:3000/genre_select"; // 기본값 설정
+		}
+
+		return UriComponentsBuilder.fromUriString(redirectUri)
+			.queryParam("accessToken", accessToken)
+			.queryParam("refreshToken", refreshToken)
+			.build().toUriString();
 	}
+
 
 }
 

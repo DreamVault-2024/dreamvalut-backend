@@ -2,6 +2,8 @@ package com.example.dreamvalutbackend.domain.track.service;
 
 import java.io.IOException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,5 +125,17 @@ public class TrackService {
 				.track(track)
 				.build();
 		streamingHistoryRepository.save(streamingHistory);
+	}
+
+	@Transactional
+	public Page<TrackResponseDto> getUserResentTrack(Long userId, Pageable pageable) {
+		Page<Track> tracks = streamingHistoryRepository.findTracksByUserId(userId, pageable);
+		return tracks.map(track -> {
+			TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
+				.orElseThrow(() -> new IllegalArgumentException("Track detail not found"));
+			Long likes = likeRepository.countByTrackId(track.getId());
+			Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(userId, track.getId());
+			return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
+		});
 	}
 }

@@ -2,7 +2,7 @@ package com.example.dreamvalutbackend.config.oauth2.domain;
 
 import java.util.Map;
 
-public class KakaoUserInfo {
+public class KakaoUserInfo implements OAuth2UserInfo {
 	public static String socialId;
 	public static Map<String, Object> account;
 	public static Map<String, Object> profile;

@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.dreamvalutbackend.config.exception.JwtAuthenticationEntryPoint;
 import com.example.dreamvalutbackend.config.handler.CommonLoginSuccessHandler;
 import com.example.dreamvalutbackend.config.jwt.filter.JwtVerifyFilter;
 import com.example.dreamvalutbackend.config.oauth2.service.OAuth2UserService;
@@ -46,6 +47,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
 				authorizationManagerRequestMatcherRegistry.anyRequest().permitAll()) //모든 요청 인증없이 허용
 			.addFilterBefore(jwtVerifyFilter(), UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+				httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryPoint()))
 			// .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthFIlter, UsernamePasswordAuthenticationFilter.class);
 			.formLogin(httpSecurityFormLoginConfigurer ->
 				httpSecurityFormLoginConfigurer
@@ -74,7 +77,10 @@ public class SecurityConfig {
 	public CommonLoginSuccessHandler commonLoginSuccessHandler() {
 		return new CommonLoginSuccessHandler(tokenRepository);
 	}
-
+	@Bean
+	public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
+		return new JwtAuthenticationEntryPoint();
+	}
 
 
 	@Bean

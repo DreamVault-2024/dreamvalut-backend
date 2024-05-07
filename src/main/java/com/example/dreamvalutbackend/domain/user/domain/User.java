@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
 
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
@@ -37,7 +35,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String displayName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     private String userEmail;
 
     @Column(nullable = false)
@@ -47,10 +45,14 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private SocialType type;
+
     private String socialId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Genre> genre = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<UserGenre> userGenres = new ArrayList<>();
 
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
