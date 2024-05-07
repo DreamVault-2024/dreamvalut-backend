@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.config.swagger;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,9 +9,14 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
+
+	@Value("${domain.test}")
+	private String domainUrl;
+
 	@Bean
 	public OpenAPI openAPI() {
 		String jwt = "JWT";
@@ -28,7 +34,9 @@ public class SwaggerConfig {
 		return new OpenAPI()
 			.components(components)
 			.info(apiInfo())
-			.addSecurityItem(securityRequirement);
+			.addSecurityItem(securityRequirement)
+			.addServersItem(new Server().url("http://localhost:8080"))
+			.addServersItem(new Server().url(domainUrl));
 	}
 
 	private Info apiInfo() {
