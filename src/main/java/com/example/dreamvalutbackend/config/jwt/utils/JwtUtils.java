@@ -3,6 +3,9 @@ package com.example.dreamvalutbackend.config.jwt.utils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -75,8 +78,8 @@ public class JwtUtils {
 				.build()
 				.parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
 				.getBody();
-		} catch(ExpiredJwtException expiredJwtException){
-			throw new CustomExpiredJwtException("토큰이 만료되었습니다", expiredJwtException);
+		}catch (ExpiredJwtException expiredJwtException) {
+			throw new AuthenticationServiceException("토큰이 만료되었습니다", expiredJwtException);
 		} catch(Exception e){
 			throw new CustomJwtException("Error");
 		}
