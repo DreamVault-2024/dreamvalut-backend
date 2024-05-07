@@ -134,7 +134,7 @@ public class PlaylistController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/users/playlists/created")
+    @GetMapping("/users/created")
     public ResponseEntity<Page<UserCreateTrackResponseDto>> getUserCreatedPlaylists(
         @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
         @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -145,7 +145,7 @@ public class PlaylistController {
         return ResponseEntity.ok(userPlaylists);
     }
 
-    @GetMapping("/users/playlists/followed")
+    @GetMapping("/users/followed")
     public ResponseEntity<Page<UserCreateTrackResponseDto>> getFollowedUserPlaylists(
         @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
         @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -156,7 +156,7 @@ public class PlaylistController {
         return ResponseEntity.ok(followedPlaylists);
     }
 
-    @GetMapping("/users/playlists/list")
+    @GetMapping("/users/list")
     public ResponseEntity<Page<PlaylistResponseDto>> getUserPlaylists(
         @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
         @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
