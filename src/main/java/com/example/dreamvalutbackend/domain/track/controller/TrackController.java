@@ -75,7 +75,7 @@ public class TrackController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("/users/played/tracks")
+	@GetMapping("/users/played")
 	public ResponseEntity<Page<TrackResponseDto>> getRecentTracks(
 		@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
 		@PageableDefault(size = 12, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
