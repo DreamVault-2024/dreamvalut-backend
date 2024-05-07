@@ -30,10 +30,6 @@ public class Genre extends BaseTimeEntity {
     @Column(nullable = false)
     private String genreImage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     // @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<Track> tracks = new ArrayList<>();
 
