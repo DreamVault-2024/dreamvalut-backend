@@ -14,8 +14,8 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class SwaggerConfig {
 
-	@Value("${domain.test}")
-	private String domainUrl;
+	@Value("${domain.backend}")
+	private String backendUrl;
 
 	@Bean
 	public OpenAPI openAPI() {
@@ -36,7 +36,7 @@ public class SwaggerConfig {
 			.info(apiInfo())
 			.addSecurityItem(securityRequirement)
 			.addServersItem(new Server().url("http://localhost:8080"))
-			.addServersItem(new Server().url(domainUrl));
+			.addServersItem(new Server().url(backendUrl));
 	}
 
 	private Info apiInfo() {
