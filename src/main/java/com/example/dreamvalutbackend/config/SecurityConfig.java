@@ -2,6 +2,7 @@ package com.example.dreamvalutbackend.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +33,9 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+	@Value("${domain.frontend}")
+	private String frontendUrl;
 
 	private final OAuth2UserService oAuth2UserService;
 	private final TokenRepository tokenRepository;
@@ -86,7 +90,7 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfiguration() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+		configuration.setAllowedOrigins(List.of("http://localhost:3000", frontendUrl));
 		configuration.addAllowedHeader("*"); //corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
 		configuration.addAllowedMethod("*"); //corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
 		configuration.setAllowCredentials(true);
