@@ -2,11 +2,11 @@ name: Deploy Spring Boot to Amazon ECS
 
 on:
   push:
-    branches: [ "test" ]  
+    branches: [ "main" ]  
   workflow_dispatch:
   
 env:
-  DOCKER_FILE: test.Dockerfile
+  DOCKER_FILE: prod.Dockerfile
   JAR_FILE: ./build/libs/*.jar
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
         shell: bash
         
       - name: Grant execute permission for gradlew
