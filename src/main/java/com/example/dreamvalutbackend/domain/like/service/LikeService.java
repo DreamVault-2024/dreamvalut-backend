@@ -1,6 +1,7 @@
 package com.example.dreamvalutbackend.domain.like.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -40,6 +41,10 @@ public class LikeService {
 
 		Track track = trackRepository.findById(likeCreateRequestDto.getTrackId())
 			.orElseThrow(() -> new IllegalArgumentException("trackId가 존재하지 않습니다"));
+
+		Optional<Like> existingLike = likeRepository.findByUserAndTrack(user, track);
+
+		existingLike.ifPresent(like -> likeRepository.delete(like));
 
 		Like like = Like.builder()
 			.user(user)
