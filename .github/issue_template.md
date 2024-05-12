@@ -12,6 +12,7 @@ assignees: ''
 
 - [ ] Bug (오류)
 - [ ] Feature Request (기능 요청)
+- [ ] Fix Request (기능 수정)
 - [ ] Performance (성능 문제)
 - [ ] UI/Design (UI/디자인 관련)
 - [ ] Documentation (문서 관련)
