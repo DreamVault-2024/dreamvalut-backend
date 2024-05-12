@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -27,6 +29,9 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class CommonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+	@Value("${domain.frontend}")
+	private String frontendUrl;
 
 	private final TokenRepository tokenRepository;
 
@@ -57,7 +62,7 @@ public class CommonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		// }
 
 		if (redirectUri == null) {
-			redirectUri = "http://localhost:3000/genre_select"; // 기본값 설정
+			redirectUri = frontendUrl + "/genre_select"; // 기본값 설정
 		}
 
 		return UriComponentsBuilder.fromUriString(redirectUri)
