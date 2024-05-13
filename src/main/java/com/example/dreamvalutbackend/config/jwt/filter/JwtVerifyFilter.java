@@ -22,7 +22,7 @@ import java.util.Map;
 @Slf4j
 public class JwtVerifyFilter extends OncePerRequestFilter {
 
-	private static final String[] whitelist = { "/signUp", "/login", "/refresh", "/tracks", "/tracks/**", "/playlists",
+	private static final String[] whitelist = { "/signUp", "/login", "/tracks", "/tracks/**", "/playlists",
 			"/playlists/**", "/tags", "/tags/**", "/genres", "/genres/**", "/search", "/users", "/users/**" };
 
 	private static void checkAuthorizationHeader(String header) {

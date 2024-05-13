@@ -284,23 +284,33 @@ public class PlaylistService {
         });
     }
 
-    @Transactional(readOnly = true)
-    public Page<UserCreateTrackResponseDto> findFollowedUserTrack(Long userId, Pageable pageable) {
-        Page<MyPlaylist> myPlaylists = myPlaylistRepository.findAllByUser_UserId(userId, pageable);
+        @Transactional(readOnly = true)
+        public Page<UserCreateTrackResponseDto> findFollowedUserTrack(Long userId, String type, Pageable pageable) {
+            if (!"curated".equalsIgnoreCase(type) && !"user_created".equalsIgnoreCase(type)) {
+                throw new IllegalArgumentException("param 형식이 맞지 않습니다.");
+            }
 
-        return myPlaylists.map(myPlaylist -> {
-            List<String> thumbnails = playlistTrackRepository.findByPlaylist(myPlaylist.getPlaylist()).stream()
-                .map(PlaylistTrack::getTrack)
-                .limit(3)
-                .map(Track::getThumbnailImage)
+            Boolean isCurated = type.equalsIgnoreCase("curated");
+            List<Long> playlistIds = myPlaylistRepository.findAllByUser_UserId(userId)
+                .stream()
+                .map(myPlaylist -> myPlaylist.getPlaylist().getId())
                 .collect(Collectors.toList());
-            return UserCreateTrackResponseDto.toDto(myPlaylist.getPlaylist(), thumbnails);
-        });
-    }
+
+            Page<Playlist> filteredPlaylists = playlistRepository.findAllByIdInAndIsCurated(playlistIds, isCurated, pageable);
+
+            return filteredPlaylists.map(playlist -> {
+                List<String> thumbnails = playlistTrackRepository.findByPlaylist(playlist).stream()
+                    .map(PlaylistTrack::getTrack)
+                    .limit(3)
+                    .map(Track::getThumbnailImage)
+                    .collect(Collectors.toList());
+                return UserCreateTrackResponseDto.toDto(playlist, thumbnails);
+            });
+        }
 
     @Transactional(readOnly = true)
     public Page<PlaylistResponseDto> findUserPlaylist(Long userId, Pageable pageable) {
-        Page<Playlist> createdPlaylists = playlistRepository.findAllByUser_UserId(userId, pageable);
+        Page<Playlist> createdPlaylists = playlistRepository.findUnionOfCreatedAndFollowedPlaylists(userId, pageable);
         return createdPlaylists.map(playlist -> PlaylistResponseDto.toDto(playlist));
     }
 }

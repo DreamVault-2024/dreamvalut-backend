@@ -147,11 +147,12 @@ public class PlaylistController {
 
     @GetMapping("/users/followed")
     public ResponseEntity<Page<UserCreateTrackResponseDto>> getFollowedUserPlaylists(
+        @RequestParam String type,
         @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
         @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Long userId = userDetailPrincipal.getUserId();
-        Page<UserCreateTrackResponseDto> followedPlaylists = playlistService.findFollowedUserTrack(userId, pageable);
+        Page<UserCreateTrackResponseDto> followedPlaylists = playlistService.findFollowedUserTrack(userId, type, pageable);
 
         return ResponseEntity.ok(followedPlaylists);
     }

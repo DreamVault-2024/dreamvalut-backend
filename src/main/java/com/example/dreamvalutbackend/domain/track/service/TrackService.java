@@ -1,8 +1,12 @@
 package com.example.dreamvalutbackend.domain.track.service;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +17,8 @@ import com.example.dreamvalutbackend.domain.genre.repository.GenreRepository;
 import com.example.dreamvalutbackend.domain.like.repository.LikeRepository;
 import com.example.dreamvalutbackend.domain.tag.service.TagService;
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackRankResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
@@ -138,4 +144,12 @@ public class TrackService {
 			return TrackResponseDto.toDto(track, trackDetail, likes, likesFlag);
 		});
 	}
+
+	public Page<TrackRankResponseDto> getPopularTracks(Pageable pageable) {
+			Page<Track> popularTracks = streamingHistoryRepository.findPopularTracks(pageable);
+			List<TrackRankResponseDto> dtos = IntStream.range(0, popularTracks.getContent().size())
+				.mapToObj(i -> TrackRankResponseDto.toDto(popularTracks.getContent().get(i), pageable.getPageNumber() * pageable.getPageSize() + i + 1))
+				.collect(Collectors.toList());
+			return new PageImpl<>(dtos, pageable, popularTracks.getTotalElements());
+		}
 }

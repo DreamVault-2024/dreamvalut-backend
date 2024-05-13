@@ -10,8 +10,9 @@ import com.example.dreamvalutbackend.domain.track.domain.StreamingHistory;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 
 @Repository
-public interface StreamingHistoryRepository extends JpaRepository<StreamingHistory, Long> {
+public interface StreamingHistoryRepository extends JpaRepository<StreamingHistory, Long>, StreamingHistoryRepositoryCustom {
 	@Query("SELECT sh.track FROM StreamingHistory sh WHERE sh.user.userId = :userId ORDER BY sh.createdAt DESC")
 	Page<Track> findTracksByUserId(Long userId, Pageable pageable);
+
 
 }

@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.dreamvalutbackend.domain.track.controller.request.TrackUploadRequestDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackOverviewResponseDto;
+import com.example.dreamvalutbackend.domain.track.controller.response.TrackRankResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackResponseDto;
 import com.example.dreamvalutbackend.domain.track.controller.response.TrackUploadResponseDto;
 import com.example.dreamvalutbackend.domain.track.service.TrackService;
@@ -78,10 +80,16 @@ public class TrackController {
 	@GetMapping("/users/played")
 	public ResponseEntity<Page<TrackResponseDto>> getRecentTracks(
 		@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
-		@PageableDefault(size = 12, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+		@PageableDefault(size = 12, sort = "createdAt") Pageable pageable) {
 
 		Long userId = userDetailPrincipal.getUserId();
 		Page<TrackResponseDto> recentTracks = trackService.getUserResentTrack(userId, pageable);
 		return ResponseEntity.ok(recentTracks);
+	}
+
+	@GetMapping("/charts")
+	public ResponseEntity<Page<TrackRankResponseDto>> getPopularTracks(@PageableDefault(size = 12, sort = "createdAt")Pageable pageable) {
+		Page<TrackRankResponseDto> tracks = trackService.getPopularTracks(pageable);
+		return ResponseEntity.ok(tracks);
 	}
 }
