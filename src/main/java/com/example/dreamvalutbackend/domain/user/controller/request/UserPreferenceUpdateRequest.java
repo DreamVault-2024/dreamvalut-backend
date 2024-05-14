@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.dreamvalutbackend.domain.user.controller.response.UserGenreResponseDto;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +14,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserPreferenceUpdateRequest {
 	private String displayName;
-	private List<UserGenreResponseDto> genres;
+	@NotEmpty
+	private List<Long> genreIds;
 
 	@Builder
-	UserPreferenceUpdateRequest(String displayName, List<UserGenreResponseDto> genres) {
+	UserPreferenceUpdateRequest(String displayName, List<Long> genreIds) {
 		this.displayName = displayName;
-		this.genres = genres;
+		this.genreIds = genreIds;
 	}
 
 

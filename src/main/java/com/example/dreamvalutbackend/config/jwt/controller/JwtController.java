@@ -39,15 +39,22 @@ public class JwtController {
 
 		Map<String, Object> claims = JwtUtils.validateToken(refreshToken);
 		String userId = (String) claims.get("userId");
-		String storedToken = stringRedisTemplate.opsForValue().get("refreshToken:" + userId);
-		if (!refreshToken.equals(storedToken)) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
-		}
+		// #TODO: Redis 토큰 형식 오류 수정
+		// String storedToken = null;
+		// try {
+		// 	storedToken = stringRedisTemplate.opsForValue().get("refreshToken:" + userId);
+		// 	if (!refreshToken.equals(storedToken)) {
+		// 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
+		// 	}
+		// } catch (Exception e) {
+		// 	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Redis access error", "details" , e.getMessage()));
+		// }
 
 
 		String newAccessToken = JwtUtils.generateToken(claims, JwtConstants.ACCESS_EXP_TIME);
 		String newRefreshToken = refreshToken;
-		long expTime = JwtUtils.tokenRemainTime((Integer) claims.get("exp"));
+		// long expTime = JwtUtils.tokenRemainTime((Integer) claims.get("exp"));
+		long expTime = ((Number) claims.get("exp")).longValue();
 		if (expTime <= 60) {
 			newRefreshToken = JwtUtils.generateToken(claims, JwtConstants.REFRESH_EXP_TIME);
 		}

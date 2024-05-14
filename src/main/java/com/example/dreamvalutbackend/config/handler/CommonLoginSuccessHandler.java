@@ -45,8 +45,8 @@ public class CommonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		String accessToken = JwtUtils.generateToken(responseMap, JwtConstants.ACCESS_EXP_TIME);
 		String refreshToken = JwtUtils.generateToken(responseMap, JwtConstants.REFRESH_EXP_TIME);
 
-		Long userId = principal.getUserId();
-		Token token = new Token(refreshToken, userId);
+		String userId = String.valueOf(principal.getUserId());
+		Token token = new Token(userId, refreshToken);
 		tokenRepository.save(token);
 
 		String targetUrl = determineTargetUrl(request, response, accessToken, refreshToken);
