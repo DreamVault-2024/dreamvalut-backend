@@ -54,6 +54,10 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<UserGenre> userGenres = new ArrayList<>();
 
+    public void updateDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     // private List<StreamingHistory> streamingHistories = new ArrayList<>();
