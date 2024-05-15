@@ -12,5 +12,7 @@ public interface UserGenreRepository extends JpaRepository<UserGenre, Long> {
 
 	void deleteByUser_UserId(Long userId);
 
+	boolean existsByUser_UserId(Long userId);
+
 	// Optional<UserGenre> findByUserIdAndGenreId(Long userId, Long genreId);
 }

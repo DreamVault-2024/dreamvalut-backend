@@ -16,28 +16,31 @@ public class PlaylistWithTracksResponseDto {
     private String ownerName;
     private Boolean isPublic;
     private Boolean isCurated;
+    private Boolean isFollow;
     private Boolean isOwner;
     private Page<TrackResponseDto> tracks;
 
     @Builder
     public PlaylistWithTracksResponseDto(Long playlistId, String playlistName, String ownerName, Boolean isPublic,
-            Boolean isCurated, Boolean isOwner, Page<TrackResponseDto> tracks) {
+            Boolean isCurated, Boolean isFollow, Boolean isOwner, Page<TrackResponseDto> tracks) {
         this.playlistId = playlistId;
         this.playlistName = playlistName;
         this.ownerName = ownerName;
         this.isPublic = isPublic;
         this.isCurated = isCurated;
+        this.isFollow = isFollow;
         this.isOwner = isOwner;
         this.tracks = tracks;
     }
 
-    public static PlaylistWithTracksResponseDto toDto(Playlist playlist, Page<TrackResponseDto> tracks, Boolean isOwner) {
+    public static PlaylistWithTracksResponseDto toDto(Playlist playlist, Page<TrackResponseDto> tracks, Boolean isOwner, Boolean isFollow) {
         return PlaylistWithTracksResponseDto.builder()
                 .playlistId(playlist.getId())
                 .playlistName(playlist.getPlaylistName())
                 .ownerName(playlist.getUser().getDisplayName())
                 .isPublic(playlist.getIsPublic())
                 .isCurated(playlist.getIsCurated())
+                .isFollow(isFollow)
                 .isOwner(isOwner)
                 .tracks(tracks)
                 .build();

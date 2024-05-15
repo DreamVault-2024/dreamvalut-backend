@@ -24,6 +24,7 @@ import com.example.dreamvalutbackend.config.exception.JwtAuthenticationEntryPoin
 import com.example.dreamvalutbackend.config.handler.CommonLoginSuccessHandler;
 import com.example.dreamvalutbackend.config.jwt.filter.JwtVerifyFilter;
 import com.example.dreamvalutbackend.config.oauth2.service.OAuth2UserService;
+import com.example.dreamvalutbackend.domain.user.repository.UserGenreRepository;
 import com.example.dreamvalutbackend.redis.repository.TokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
 	private final OAuth2UserService oAuth2UserService;
 	private final TokenRepository tokenRepository;
+	private final UserGenreRepository userGenreRepository;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -79,7 +81,7 @@ public class SecurityConfig {
 	}
 	@Bean
 	public CommonLoginSuccessHandler commonLoginSuccessHandler() {
-		return new CommonLoginSuccessHandler(tokenRepository);
+		return new CommonLoginSuccessHandler(tokenRepository, userGenreRepository);
 	}
 	@Bean
 	public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
