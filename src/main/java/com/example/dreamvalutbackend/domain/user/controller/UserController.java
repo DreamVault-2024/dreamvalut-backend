@@ -60,10 +60,11 @@ public class UserController {
 
 	@PatchMapping("/users")
 	public ResponseEntity<Void> updateUserPreferences(
-		@AuthenticationPrincipal(expression = "id") Long userId,
+		@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
 		@RequestBody UserPreferenceUpdateRequest request) {
+		Long userId = userDetailPrincipal.getUserId();
 		userService.updateUserPreferences(userId, request);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 }

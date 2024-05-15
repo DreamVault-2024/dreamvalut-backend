@@ -57,25 +57,28 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public UserInfoResponseDto getUser(Long userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+			.orElseThrow(() -> new IllegalArgumentException("userId가 존재하지 않습니다: " + userId));
 
 		return UserInfoResponseDto.toDto(user);
 	}
 
 	@Transactional
 	public void updateUserPreferences(Long userId, UserPreferenceUpdateRequest request) {
-		// User user = userRepository.findById(userId)
-		// 	.orElseThrow(() -> new RuntimeException("User not found"));
-		//
-		// user.setDisplayName(request.getDisplayName());
-		// userRepository.save(user);
-		//
-		// request.getGenres().forEach(genreDto -> {
-		// 	UserGenre userGenre = userGenreRepository.findByUserIdAndGenreId(userId, genreDto.getGenreId())
-		// 		.orElse(new UserGenre(user, genreDto.getGenreId(), genreDto.isState()));
-		// 	userGenre.setState(genreDto.isState());
-		// 	userGenreRepository.save(userGenre);
-		// });
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("userId가 존재하지 않습니다: " + userId));
+
+		user.updateDisplayName(request.getDisplayName());
+		userRepository.save(user);
+
+		userGenreRepository.deleteByUser_UserId(userId);
+
+		request.getGenreIds().forEach(genreId -> {
+			Genre genre = genreRepository.findById(genreId)
+				.orElseThrow(() -> new RuntimeException("genreId가 존재하지 않습니다."));
+
+			UserGenre userGenre = new UserGenre(user, genre);
+			userGenreRepository.save(userGenre);
+		});
 	}
 
 

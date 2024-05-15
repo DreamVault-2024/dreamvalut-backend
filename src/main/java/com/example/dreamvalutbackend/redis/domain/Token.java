@@ -9,12 +9,12 @@ import lombok.Getter;
 @RedisHash(value = "refreshToken", timeToLive = 86400)
 public class Token {
 	@Id
-	private Long userId;
+	private String userId;
 
 	private String refreshToken;
 
-	public Token(String refreshToken, Long userId) {
-		this.refreshToken = refreshToken;
+	public Token(String userId, String refreshToken) {
 		this.userId = userId;
+		this.refreshToken = refreshToken;
 	}
 }

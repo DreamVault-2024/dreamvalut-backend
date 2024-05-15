@@ -79,7 +79,7 @@ public class JwtUtils {
 				.parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
 				.getBody();
 		}catch (ExpiredJwtException expiredJwtException) {
-			throw new AuthenticationServiceException("토큰이 만료되었습니다", expiredJwtException);
+			throw new CustomExpiredJwtException("토큰이 만료되었습니다", expiredJwtException);
 		} catch(Exception e){
 			throw new CustomJwtException("Error");
 		}
@@ -90,8 +90,10 @@ public class JwtUtils {
 	public static boolean isExpired(String token) {
 		try {
 			validateToken(token);
+		} catch (CustomExpiredJwtException e) {
+			return true;
 		} catch (Exception e) {
-			return (e instanceof CustomExpiredJwtException);
+
 		}
 		return false;
 	}

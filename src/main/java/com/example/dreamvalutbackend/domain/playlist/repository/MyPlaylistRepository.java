@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.playlist.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -18,5 +19,6 @@ public interface MyPlaylistRepository extends JpaRepository<MyPlaylist, Long> {
 
     Optional<MyPlaylist> findByUserAndPlaylist(User user, Playlist playlist);
 
-    Page<MyPlaylist> findAllByUser_UserId(Long userId, Pageable pageable);
+    List<MyPlaylist> findAllByUser_UserId(Long userId);
+
 }

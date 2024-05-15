@@ -99,12 +99,18 @@ public class PlaylistService {
         // ID로 Playlist 찾기
         Playlist playlist = playlistRepository.findById(playlistId)
             .orElseThrow(() -> new EntityNotFoundException("Playlist not found with id: " + playlistId));
+
+        // ID로 User 찾기
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
       
         // Playlist이 비공개이고 로그인한 유저와 Playlist의 유저가 다르면 예외 발생
         Boolean isOwner = playlist.getUser().getUserId().equals(userId);
         if (!playlist.getIsPublic() && !isOwner) {
             throw new SecurityException("User not authorized to view this playlist");
         }
+
+        Boolean isFollow = myPlaylistRepository.existsByUserAndPlaylist(user, playlist);
 
         // Playlist에 해당하는 Track들 가져오기
         Page<TrackResponseDto> tracks = playlistTrackRepository.findAllByPlaylistId(playlistId, pageable)
@@ -125,7 +131,7 @@ public class PlaylistService {
             });
 
 
-        return PlaylistWithTracksResponseDto.toDto(playlist, tracks, isOwner);
+        return PlaylistWithTracksResponseDto.toDto(playlist, tracks, isOwner, isFollow);
     }
 
     @Transactional
@@ -284,23 +290,33 @@ public class PlaylistService {
         });
     }
 
-    @Transactional(readOnly = true)
-    public Page<UserCreateTrackResponseDto> findFollowedUserTrack(Long userId, Pageable pageable) {
-        Page<MyPlaylist> myPlaylists = myPlaylistRepository.findAllByUser_UserId(userId, pageable);
+        @Transactional(readOnly = true)
+        public Page<UserCreateTrackResponseDto> findFollowedUserTrack(Long userId, String type, Pageable pageable) {
+            if (!"curated".equalsIgnoreCase(type) && !"user_created".equalsIgnoreCase(type)) {
+                throw new IllegalArgumentException("param 형식이 맞지 않습니다.");
+            }
 
-        return myPlaylists.map(myPlaylist -> {
-            List<String> thumbnails = playlistTrackRepository.findByPlaylist(myPlaylist.getPlaylist()).stream()
-                .map(PlaylistTrack::getTrack)
-                .limit(3)
-                .map(Track::getThumbnailImage)
+            Boolean isCurated = type.equalsIgnoreCase("curated");
+            List<Long> playlistIds = myPlaylistRepository.findAllByUser_UserId(userId)
+                .stream()
+                .map(myPlaylist -> myPlaylist.getPlaylist().getId())
                 .collect(Collectors.toList());
-            return UserCreateTrackResponseDto.toDto(myPlaylist.getPlaylist(), thumbnails);
-        });
-    }
+
+            Page<Playlist> filteredPlaylists = playlistRepository.findAllByIdInAndIsCurated(playlistIds, isCurated, pageable);
+
+            return filteredPlaylists.map(playlist -> {
+                List<String> thumbnails = playlistTrackRepository.findByPlaylist(playlist).stream()
+                    .map(PlaylistTrack::getTrack)
+                    .limit(3)
+                    .map(Track::getThumbnailImage)
+                    .collect(Collectors.toList());
+                return UserCreateTrackResponseDto.toDto(playlist, thumbnails);
+            });
+        }
 
     @Transactional(readOnly = true)
     public Page<PlaylistResponseDto> findUserPlaylist(Long userId, Pageable pageable) {
-        Page<Playlist> createdPlaylists = playlistRepository.findAllByUser_UserId(userId, pageable);
+        Page<Playlist> createdPlaylists = playlistRepository.findUnionOfCreatedAndFollowedPlaylists(userId, pageable);
         return createdPlaylists.map(playlist -> PlaylistResponseDto.toDto(playlist));
     }
 }
