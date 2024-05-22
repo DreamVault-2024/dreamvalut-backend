@@ -61,11 +61,10 @@ public class TagService {
     @Transactional
     public void associateTrackWithTags(Track track, String[] tagNames) {
 
-        // TODO: 이미지를 Bedrock으로 생성해서 저장하도록 로직 변경
         // 태그들을 순회하며 태그를 찾아서 없으면 생성하고, TrackTag를 생성하여 저장
         Arrays.stream(tagNames).forEach(tagName -> {
             Tag tag = tagRepository.findByTagName(tagName)
-                    .orElseGet(() -> tagRepository.save(new Tag(tagName, "default tag image")));
+                    .orElseGet(() -> tagRepository.save(new Tag(tagName, track.getThumbnailImage())));
             trackTagRepository.save(new TrackTag(track, tag));
         });
     }
