@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.example.dreamvalutbackend.domain.track.domain.QStreamingHistory;
 import com.example.dreamvalutbackend.domain.track.domain.QTrack;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -63,6 +64,51 @@ public class StreamingHistoryRepositoryImpl implements StreamingHistoryRepositor
 
 		return new PageImpl<>(sortedTracks, pageable, total);
 	}
+
+	@Override
+	public Page<Track> findDistinctAndRecentTracksByUserId(Long userId, Pageable pageable) {
+		QStreamingHistory streamingHistory = QStreamingHistory.streamingHistory;
+		QTrack track = QTrack.track;
+
+		List<Tuple> trackInfo = queryFactory
+			.select(streamingHistory.track.id, streamingHistory.createdAt)
+			.distinct()
+			.from(streamingHistory)
+			.where(streamingHistory.user.userId.eq(userId))
+			.orderBy(streamingHistory.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		List<Long> trackIds = trackInfo.stream()
+			.map(tuple -> tuple.get(streamingHistory.track.id))
+			.collect(Collectors.toList());
+
+		if (trackIds.isEmpty()) {
+			return Page.empty(pageable);
+		}
+
+		List<Track> tracks = queryFactory
+			.selectFrom(track)
+			.where(track.id.in(trackIds))
+			.orderBy(track.createdAt.desc())
+			.fetch();
+
+		List<Track> sortedTracks = trackIds.stream()
+			.map(id -> tracks.stream()
+				.filter(t -> t.getId().equals(id))
+				.findFirst()
+				.orElse(null))
+			.collect(Collectors.toList());
+
+		long total = queryFactory
+			.selectFrom(streamingHistory)
+			.where(streamingHistory.user.userId.eq(userId))
+			.fetchCount();
+
+		return new PageImpl<>(sortedTracks, pageable, total);
+	}
+
 
 
 }
