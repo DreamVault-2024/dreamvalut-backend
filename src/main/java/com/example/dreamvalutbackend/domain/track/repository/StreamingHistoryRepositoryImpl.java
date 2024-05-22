@@ -1,5 +1,6 @@
 package com.example.dreamvalutbackend.domain.track.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -70,30 +71,37 @@ public class StreamingHistoryRepositoryImpl implements StreamingHistoryRepositor
 		QStreamingHistory streamingHistory = QStreamingHistory.streamingHistory;
 		QTrack track = QTrack.track;
 
-		List<Tuple> trackInfo = queryFactory
-			.select(streamingHistory.track.id, streamingHistory.createdAt)
-			.distinct()
+		// 각 track_id에 대한 최신 created_at을 찾아서 중복을 제거
+		List<Tuple> latestEntries = queryFactory
+			.select(streamingHistory.track.id, streamingHistory.createdAt.max().as("latestCreatedAt"))
 			.from(streamingHistory)
 			.where(streamingHistory.user.userId.eq(userId))
-			.orderBy(streamingHistory.createdAt.desc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.groupBy(streamingHistory.track.id)
 			.fetch();
 
-		List<Long> trackIds = trackInfo.stream()
+		// 최신 created_at 기준으로 정렬된 track_id 리스트 추출
+		List<Long> trackIds = latestEntries.stream()
+			.sorted((t1, t2) -> {
+				LocalDateTime t1Date = t1.get(1, LocalDateTime.class);
+				LocalDateTime t2Date = t2.get(1, LocalDateTime.class);
+				return t2Date.compareTo(t1Date); // 최신순 정렬
+			})
 			.map(tuple -> tuple.get(streamingHistory.track.id))
+			.skip(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.collect(Collectors.toList());
 
 		if (trackIds.isEmpty()) {
 			return Page.empty(pageable);
 		}
 
+		// 트랙 세부 정보 조회
 		List<Track> tracks = queryFactory
 			.selectFrom(track)
 			.where(track.id.in(trackIds))
-			.orderBy(track.createdAt.desc())
 			.fetch();
 
+		// 트랙 ID 목록의 순서대로 트랙을 정렬
 		List<Track> sortedTracks = trackIds.stream()
 			.map(id -> tracks.stream()
 				.filter(t -> t.getId().equals(id))
@@ -101,14 +109,12 @@ public class StreamingHistoryRepositoryImpl implements StreamingHistoryRepositor
 				.orElse(null))
 			.collect(Collectors.toList());
 
-		long total = queryFactory
-			.selectFrom(streamingHistory)
-			.where(streamingHistory.user.userId.eq(userId))
-			.fetchCount();
+		// 중복 제거된 track_id를 기반으로 총 수를 계산
+		long total = latestEntries.size();
 
 		return new PageImpl<>(sortedTracks, pageable, total);
 	}
 
 
-
 }
+
