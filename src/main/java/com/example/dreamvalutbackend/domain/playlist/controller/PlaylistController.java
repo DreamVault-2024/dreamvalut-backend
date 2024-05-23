@@ -62,7 +62,7 @@ public class PlaylistController {
     @GetMapping
     public ResponseEntity<Page<PlaylistWithTracksOverviewResponseDto>> getPlaylistsWithTracksOverview(
             @ValidPlaylistType @RequestParam("type") String type,
-            @PageableDefault(page = 0, size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(playlistService.getPlaylistsWithTracksOverview(type, pageable));
     }
@@ -71,7 +71,7 @@ public class PlaylistController {
     @Operation(summary = "특정 플레이스트 정보 가져오기")
     public ResponseEntity<PlaylistWithTracksResponseDto> getPlaylistWithTracks(
             @PathVariable("playlist_id") Long playlistId,
-            @PageableDefault(page = 0, size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(page = 0, size = 30, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal) {
 
         return ResponseEntity

@@ -84,7 +84,7 @@ public class PlaylistService {
         return playlistPage.map(playlist -> {
             // Playlist에 해당하는 Track 가져오기
             List<TrackOverviewResponseDto> tracks = playlistTrackRepository
-                .findAllByPlaylistId(playlist.getId(), PageRequest.of(0, 3, Sort.by("createdAt").descending()))
+                .findAllByPlaylistId(playlist.getId(), PageRequest.of(0, 3, Sort.by("id").descending()))
                 .stream()
                 .map(PlaylistTrack::getTrack)
                 .map(TrackOverviewResponseDto::toDto)
