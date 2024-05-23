@@ -135,7 +135,7 @@ public class TrackService {
 
 	@Transactional
 	public Page<TrackResponseDto> getUserResentTrack(Long userId, Pageable pageable) {
-		Page<Track> tracks = streamingHistoryRepository.findTracksByUserId(userId, pageable);
+		Page<Track> tracks = streamingHistoryRepository.findDistinctAndRecentTracksByUserId(userId, pageable);
 		return tracks.map(track -> {
 			TrackDetail trackDetail = trackDetailRepository.findById(track.getId())
 				.orElseThrow(() -> new IllegalArgumentException("Track detail not found"));

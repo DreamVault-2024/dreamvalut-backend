@@ -5,6 +5,7 @@ import java.net.URI;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -80,7 +81,7 @@ public class TrackController {
 	@GetMapping("/users/played")
 	public ResponseEntity<Page<TrackResponseDto>> getRecentTracks(
 		@AuthenticationPrincipal UserDetailPrincipal userDetailPrincipal,
-		@PageableDefault(size = 12, sort = "createdAt") Pageable pageable) {
+		@PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 		Long userId = userDetailPrincipal.getUserId();
 		Page<TrackResponseDto> recentTracks = trackService.getUserResentTrack(userId, pageable);
