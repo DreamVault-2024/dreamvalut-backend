@@ -33,7 +33,7 @@ public class UserResponseDto {
 
 	public static UserResponseDto toDto(User user) {
 		return UserResponseDto.builder()
-			.userId(user.getUserId())
+			.userId(user.getId())
 			.userName(user.getUserName())
 			.displayName(user.getDisplayName())
 			.userEmail(user.getUserEmail())

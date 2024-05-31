@@ -62,7 +62,7 @@ public class JwtUtils {
 
 		Long userId = Long.parseLong(userIdString);
 
-		User user = User.builder().role(userRole).userName(name).userEmail(email).userId(userId).build();
+		User user = User.builder().role(userRole).userName(name).userEmail(email).id(userId).build();
 		Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue()));
 		UserDetailPrincipal principalDetail = new UserDetailPrincipal(user, authorities);
 

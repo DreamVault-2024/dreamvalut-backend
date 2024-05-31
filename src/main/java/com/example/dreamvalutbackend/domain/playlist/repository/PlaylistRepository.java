@@ -14,7 +14,7 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long>, Playl
 
     Page<Playlist> findByIsCuratedFalseAndIsPublicTrue(Pageable pageable);
 
-    Page<Playlist> findAllByUser_UserId(Long userId, Pageable pageable);
+    Page<Playlist> findAllByUserId(Long userId, Pageable pageable);
 
     Page<Playlist> findAllByIdInAndIsCurated(List<Long> ids, Boolean isCurated, Pageable pageable);
 }

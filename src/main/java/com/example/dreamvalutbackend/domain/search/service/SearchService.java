@@ -74,7 +74,7 @@ public class SearchService {
         List<SearchTrackResponseDto> searchTrackResponseDtos = response.hits().hits().stream()
                 .map(hit -> {
                     Long likes = likeRepository.countByTrackId(hit.source().getId());
-                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(user.getUserId(), hit.source().getId());
+                    Boolean likesFlag = likeRepository.existsByUserIdAndTrackId(user.getId()    , hit.source().getId());
                     return TrackDocumentUtil.toDto(hit.source(), hit.highlight(), likes, likesFlag);
                 }).collect(Collectors.toList());
 

@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.dreamvalutbackend.domain.user.domain.UserGenre;
 
 public interface UserGenreRepository extends JpaRepository<UserGenre, Long> {
-	List<UserGenre> findByUser_UserId(Long userId);
+	List<UserGenre> findByUserId(Long userId);
 
-	void deleteByUser_UserId(Long userId);
+	void deleteByUserId(Long userId);
 
-	boolean existsByUser_UserId(Long userId);
+	boolean existsByUserId(Long userId);
 
 	// Optional<UserGenre> findByUserIdAndGenreId(Long userId, Long genreId);
 }

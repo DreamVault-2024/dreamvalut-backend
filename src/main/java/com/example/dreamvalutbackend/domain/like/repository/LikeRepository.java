@@ -20,14 +20,14 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
 	Long countByTrackId(Long trackId);
 
-	@Query("SELECT count(l) > 0 FROM Like l WHERE l.user.userId = :userId AND l.track.id = :trackId")
+	@Query("SELECT count(l) > 0 FROM Like l WHERE l.user.id = :userId AND l.track.id = :trackId")
 	Boolean existsByUserIdAndTrackId(@Param("userId") Long userId, @Param("trackId") Long trackId);
 
 
-	@Query("SELECT l.track FROM Like l WHERE l.user.userId = :userId ORDER BY l.id DESC")
+	@Query("SELECT l.track FROM Like l WHERE l.user.id = :userId ORDER BY l.id DESC")
 	List<Track> findTracksByUserId(@Param("userId") Long userId, Pageable pageable);
 
-	@Query("SELECT l.track FROM Like l WHERE l.user.userId = :userId ORDER BY l.id DESC")
+	@Query("SELECT l.track FROM Like l WHERE l.user.id = :userId ORDER BY l.id DESC")
 	Page<Track> findTopLikedTracksByUserId(@Param("userId") Long userId, Pageable pageable);
 
 }

@@ -64,7 +64,7 @@ public class CommonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		// 	redirectUri = getDefaultTargetUrl();
 		// }
 
-		boolean hasGenres = userGenreRepository.existsByUser_UserId(userId);
+		boolean hasGenres = userGenreRepository.existsByUserId(userId);
 
 		if (hasGenres) {
 			redirectUri = frontendUrl + "/auth/login";
