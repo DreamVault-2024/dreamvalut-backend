@@ -34,7 +34,6 @@ import com.example.dreamvalutbackend.domain.track.repository.TrackDetailReposito
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
-import java.util.stream.Stream;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

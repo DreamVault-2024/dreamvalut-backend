@@ -3,19 +3,14 @@ package com.example.dreamvalutbackend.config.jwt.controller;
 import java.util.Map;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dreamvalutbackend.config.exception.CustomJwtException;
 import com.example.dreamvalutbackend.config.jwt.utils.JwtConstants;
 import com.example.dreamvalutbackend.config.jwt.utils.JwtUtils;
-import com.example.dreamvalutbackend.redis.config.RedisConfiguration;
-import com.example.dreamvalutbackend.redis.repository.TokenRepository;
 
 import lombok.RequiredArgsConstructor;
 

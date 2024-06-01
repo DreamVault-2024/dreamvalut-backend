@@ -2,9 +2,6 @@ package com.example.dreamvalutbackend.domain.track.controller.response;
 
 import java.util.List;
 
-import com.example.dreamvalutbackend.domain.track.domain.Track;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 

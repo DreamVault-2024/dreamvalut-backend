@@ -1,10 +1,6 @@
 package com.example.dreamvalutbackend.domain.user.controller.response;
 
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
-import com.example.dreamvalutbackend.domain.user.domain.User;
-
 
 import lombok.Builder;
 import lombok.Getter;

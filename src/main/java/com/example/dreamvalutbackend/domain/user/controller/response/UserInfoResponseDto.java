@@ -1,7 +1,6 @@
 package com.example.dreamvalutbackend.domain.user.controller.response;
 
 import com.example.dreamvalutbackend.domain.user.domain.User;
-import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 
 import lombok.Builder;
 import lombok.Getter;

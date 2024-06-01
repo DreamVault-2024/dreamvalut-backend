@@ -1,6 +1,5 @@
 package com.example.dreamvalutbackend.domain.track.controller.response;
 
-import com.example.dreamvalutbackend.domain.like.domain.Like;
 import com.example.dreamvalutbackend.domain.track.domain.Track;
 import com.example.dreamvalutbackend.domain.track.domain.TrackDetail;
 
