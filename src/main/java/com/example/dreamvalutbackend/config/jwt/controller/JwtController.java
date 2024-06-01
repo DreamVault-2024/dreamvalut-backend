@@ -3,6 +3,7 @@ package com.example.dreamvalutbackend.config.jwt.controller;
 import java.util.Map;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -55,5 +56,21 @@ public class JwtController {
 		}
 
 		return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken));
+	}
+
+
+	@PostMapping("/signout")
+	public ResponseEntity<Map<String, Object>> logout(@RequestHeader("Authorization") String authHeader, @RequestHeader("X-Refresh-Token") String refreshToken) {
+		if (authHeader == null || !authHeader.startsWith(JwtConstants.JWT_TYPE)) {
+			throw new CustomJwtException("Access Token 형식이 올바르지 않습니다.");
+		}
+
+		String accessToken = JwtUtils.getTokenFromHeader(authHeader);
+		Map<String, Object> claims = JwtUtils.validateToken(accessToken);
+		String userId = (String) claims.get("userId");
+
+		stringRedisTemplate.delete("refreshToken:" + userId);
+
+		return ResponseEntity.noContent().build();
 	}
 }
