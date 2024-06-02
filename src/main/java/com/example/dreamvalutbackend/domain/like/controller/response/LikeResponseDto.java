@@ -21,7 +21,7 @@ public class LikeResponseDto {
 	public static LikeResponseDto toDto(Like like) {
 		return LikeResponseDto.builder()
 			.id(like.getId())
-			.userId(like.getUser().getUserId())
+			.userId(like.getUser().getId())
 			.trackId(like.getTrack().getId())
 			.build();
 	}

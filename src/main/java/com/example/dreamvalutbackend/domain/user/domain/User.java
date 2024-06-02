@@ -1,13 +1,9 @@
 package com.example.dreamvalutbackend.domain.user.domain;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
-import com.example.dreamvalutbackend.domain.genre.domain.Genre;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,7 +23,7 @@ public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long userId;
+    private Long id;
 
     @Column(nullable = false)
     private String userName;

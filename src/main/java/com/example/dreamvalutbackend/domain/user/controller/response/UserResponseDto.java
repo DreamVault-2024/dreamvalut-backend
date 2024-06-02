@@ -3,9 +3,6 @@ package com.example.dreamvalutbackend.domain.user.controller.response;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.domain.UserRole;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -33,7 +30,7 @@ public class UserResponseDto {
 
 	public static UserResponseDto toDto(User user) {
 		return UserResponseDto.builder()
-			.userId(user.getUserId())
+			.userId(user.getId())
 			.userName(user.getUserName())
 			.displayName(user.getDisplayName())
 			.userEmail(user.getUserEmail())

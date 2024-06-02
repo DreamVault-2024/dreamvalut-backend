@@ -1,11 +1,6 @@
 package com.example.dreamvalutbackend.domain.genre.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
-import com.example.dreamvalutbackend.domain.track.domain.Track;
-import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

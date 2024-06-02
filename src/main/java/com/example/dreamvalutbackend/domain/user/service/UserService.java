@@ -1,6 +1,5 @@
 package com.example.dreamvalutbackend.domain.user.service;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class UserService {
 	public void addGenre(Long userId, UserGenreCreateRequestDto genreCreateRequestDto) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("userId가 존재하지 않습니다."));
-		userGenreRepository.deleteByUser_UserId(userId);
+		userGenreRepository.deleteByUserId(userId);
 
 		genreCreateRequestDto.getGenreIds().forEach(genreId -> {
 			Genre genre = genreRepository.findById(genreId)
@@ -47,7 +46,7 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public Page<UserGenreResponseDto> getUserGenre(Long userId, Pageable pageable) {
 		Page<Genre> genresPage = genreRepository.findAll(pageable);
-		Set<Long> selectedGenreIds = userGenreRepository.findByUser_UserId(userId).stream()
+		Set<Long> selectedGenreIds = userGenreRepository.findByUserId(userId).stream()
 			.map(userGenre -> userGenre.getGenre().getId())
 			.collect(Collectors.toSet());
 
@@ -70,7 +69,7 @@ public class UserService {
 		user.updateDisplayName(request.getDisplayName());
 		userRepository.save(user);
 
-		userGenreRepository.deleteByUser_UserId(userId);
+		userGenreRepository.deleteByUserId(userId);
 
 		request.getGenreIds().forEach(genreId -> {
 			Genre genre = genreRepository.findById(genreId)

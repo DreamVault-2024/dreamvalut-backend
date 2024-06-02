@@ -1,12 +1,7 @@
 package com.example.dreamvalutbackend.domain.track.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.genre.domain.Genre;
-import com.example.dreamvalutbackend.domain.playlist.domain.PlaylistTrack;
-import com.example.dreamvalutbackend.domain.tag.domain.TrackTag;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 
 import jakarta.persistence.*;

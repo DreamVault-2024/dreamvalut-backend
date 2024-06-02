@@ -2,8 +2,6 @@ package com.example.dreamvalutbackend.domain.user.controller.request;
 
 import java.util.List;
 
-import com.example.dreamvalutbackend.domain.user.controller.response.UserGenreResponseDto;
-
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Builder;

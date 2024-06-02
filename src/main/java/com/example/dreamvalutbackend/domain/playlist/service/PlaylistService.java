@@ -34,7 +34,6 @@ import com.example.dreamvalutbackend.domain.track.repository.TrackDetailReposito
 import com.example.dreamvalutbackend.domain.track.repository.TrackRepository;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 import com.example.dreamvalutbackend.domain.user.repository.UserRepository;
-import java.util.stream.Stream;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +104,7 @@ public class PlaylistService {
             .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
       
         // Playlist이 비공개이고 로그인한 유저와 Playlist의 유저가 다르면 예외 발생
-        Boolean isOwner = playlist.getUser().getUserId().equals(userId);
+        Boolean isOwner = playlist.getUser().getId().equals(userId);
         if (!playlist.getIsPublic() && !isOwner) {
             throw new SecurityException("User not authorized to view this playlist");
         }
@@ -145,7 +144,7 @@ public class PlaylistService {
 
         // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
-        if (!playlistOwner.getUserId().equals(userId)) {
+        if (!playlistOwner.getId().equals(userId)) {
             throw new SecurityException("User not authorized to update this playlist");
         }
 
@@ -164,7 +163,7 @@ public class PlaylistService {
 
         // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
-        if (!playlistOwner.getUserId().equals(userId)) {
+        if (!playlistOwner.getId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
         }
 
@@ -185,7 +184,7 @@ public class PlaylistService {
 
         // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
-        if (!playlistOwner.getUserId().equals(userId)) {
+        if (!playlistOwner.getId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
         }
 
@@ -216,7 +215,7 @@ public class PlaylistService {
 
         // Playlist의 유저와 로그인한 유저가 다르면 예외 발생
         User playlistOwner = playlist.getUser();
-        if (!playlistOwner.getUserId().equals(userId)) {
+        if (!playlistOwner.getId().equals(userId)) {
             throw new SecurityException("User not authorized to delete this playlist");
         }
 
@@ -278,7 +277,7 @@ public class PlaylistService {
 
     @Transactional(readOnly = true)
     public Page<UserCreateTrackResponseDto> findUserCreateTrack(Long userId, Pageable pageable) {
-        Page<Playlist> playlists = playlistRepository.findAllByUser_UserId(userId, pageable);
+        Page<Playlist> playlists = playlistRepository.findAllByUserId(userId, pageable);
 
         return playlists.map(playlist -> {
             List<String> thumbnails = playlistTrackRepository.findByPlaylist(playlist).stream()
@@ -297,7 +296,7 @@ public class PlaylistService {
             }
 
             Boolean isCurated = type.equalsIgnoreCase("curated");
-            List<Long> playlistIds = myPlaylistRepository.findAllByUser_UserId(userId)
+            List<Long> playlistIds = myPlaylistRepository.findAllByUserId(userId)
                 .stream()
                 .map(myPlaylist -> myPlaylist.getPlaylist().getId())
                 .collect(Collectors.toList());

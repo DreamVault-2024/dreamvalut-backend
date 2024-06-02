@@ -33,13 +33,13 @@ public class PlaylistRepositoryImpl implements PlaylistRepositoryCustom {
 		List<Long> createdPlaylistIds = queryFactory
 			.select(playlist.id)
 			.from(playlist)
-			.where(playlist.user.userId.eq(userId))
+			.where(playlist.user.id.eq(userId))
 			.fetch();
 
 		List<Long> followedPlaylistIds = queryFactory
 			.select(myPlaylist.playlist.id)
 			.from(myPlaylist)
-			.where(myPlaylist.user.userId.eq(userId))
+			.where(myPlaylist.user.id.eq(userId))
 			.fetch();
 
 		Set<Long> unionIds = new HashSet<>(createdPlaylistIds);

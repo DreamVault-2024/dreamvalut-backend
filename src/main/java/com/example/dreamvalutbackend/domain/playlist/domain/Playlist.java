@@ -1,8 +1,5 @@
 package com.example.dreamvalutbackend.domain.playlist.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.dreamvalutbackend.domain.common.BaseTimeEntity;
 import com.example.dreamvalutbackend.domain.user.domain.User;
 

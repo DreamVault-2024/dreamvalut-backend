@@ -46,11 +46,11 @@ public class UserDetailPrincipal implements OAuth2User {
 		info.put("name", user.getUserName());
 		info.put("email", user.getUserEmail());
 		info.put("role", user.getRole().toString());
-		info.put("userId", user.getUserId().toString());
+		info.put("userId", user.getId().toString());
 		return info;
 	}
 
 	public Long getUserId() {
-		return user.getUserId();
+		return user.getId();
 	}
 }

@@ -75,7 +75,7 @@ public class StreamingHistoryRepositoryImpl implements StreamingHistoryRepositor
 		List<Tuple> latestEntries = queryFactory
 			.select(streamingHistory.track.id, streamingHistory.createdAt.max().as("latestCreatedAt"))
 			.from(streamingHistory)
-			.where(streamingHistory.user.userId.eq(userId))
+			.where(streamingHistory.user.id.eq(userId))
 			.groupBy(streamingHistory.track.id)
 			.fetch();
 

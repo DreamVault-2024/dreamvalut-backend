@@ -4,19 +4,15 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,7 +58,7 @@ public class JwtUtils {
 
 		Long userId = Long.parseLong(userIdString);
 
-		User user = User.builder().role(userRole).userName(name).userEmail(email).userId(userId).build();
+		User user = User.builder().role(userRole).userName(name).userEmail(email).id(userId).build();
 		Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue()));
 		UserDetailPrincipal principalDetail = new UserDetailPrincipal(user, authorities);
 
