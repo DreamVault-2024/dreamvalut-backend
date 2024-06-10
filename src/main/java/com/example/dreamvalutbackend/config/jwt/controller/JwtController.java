@@ -30,7 +30,7 @@ public class JwtController {
 		String accessToken = JwtUtils.getTokenFromHeader(authHeader);
 
 		if (!JwtUtils.isExpired(accessToken)) {
-			return ResponseEntity.ok(Map.of("Access Token", accessToken, "Refresh Token", refreshToken));
+			return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken));
 		}
 
 		Map<String, Object> claims = JwtUtils.validateToken(refreshToken);
